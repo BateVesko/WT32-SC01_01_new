@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+/MainProjektPogledec/Project_04/esp-idf-v4.4.6/examples/lcd/gas/main/src/server/main/http_server.c
+/MainProjektPogledec/Project_04/esp-idf-v4.4.6/examples/lcd/gas/main/src/server/main/http_server.h
