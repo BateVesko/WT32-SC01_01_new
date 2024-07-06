@@ -1,6 +1,8 @@
 #include <Arduino.h>
-#include <TFT_eSPI.h>
+//#include <TFT_eSPI.h>
 #include <driver/ledc.h> // Включване на заглавния файл за LEDC функции
+#include "data_visualize.h"
+#include "PWM_generator.h"
 
 #define ANALOG_PIN_OU2 2  // Използваме GPIO2 за аналогов вход (изход ОУ2)
 #define ANALOG_PIN_OU1 26 // Използваме GPIO26 за аналогов вход (изход ОУ1)
@@ -16,11 +18,6 @@ const float D = 0.110;
 const float d = 0.070;
 const int numMeasurements = 20;  // Брой измервания за осредняване
 const int numAverages = 20;  // Брой усреднени стойности за допълнително осредняване
-const int sizeText = 2;
-int indentText = 10 * sizeText;
-int lineSpacing = 7 * sizeText + 6 * sizeText;
-int heightText = 7 * sizeText;
-int lengthText = 6 * sizeText;
 
 int adcReadings_OU2[numMeasurements];  // Масив за съхранение на измерванията на ОУ2
 int adcReadings_OU1[numMeasurements];  // Масив за съхранение на измерванията на ОУ1
@@ -36,8 +33,6 @@ int avgIndex = 0;  // Индекс за текущата усреднена ст
 unsigned long lastMeasurementTime = 0;
 unsigned long lastPrintTime = 0;
 
-TFT_eSPI tft = TFT_eSPI();  // Създаване на обект за TFT дисплея
-
 int ADCoffset = 0; // Първоначална стойност на налягането
 
 float AirSpeed(float pressureReal, float D, float d) {
@@ -52,28 +47,9 @@ void setup() {
   Serial.begin(9600);  // Започваме сериен монитор на 9600 бауда
   analogSetAttenuation(ADC_11db); // Настройка на затихването за обхват 0-3.3V
 
-  Serial.println("Инициализация...");
-  //delay(5000);  // Пауза за уравновесяване на нивото на стенда
+  delay(5000);  // Пауза за уравновесяване на нивото на стенда
 
-  // Инициализация на масивите с нули
-  for (int i = 0; i < numMeasurements; i++) {
-    adcReadings_OU2[i] = 0;
-    adcReadings_OU1[i] = 0;
-    vccReadings[i] = 0;
-  }
-  for (int i = 0; i < numAverages; i++) {
-    adcAverages_OU2[i] = 0;
-    adcAverages_OU1[i] = 0;
-    vccAverages[i] = 0;
-  }
-
-  Serial.println("Инициализация завършена");
-
-  tft.begin();
-  tft.setRotation(3);  // Ротация на екрана в позиция 3
-  tft.fillScreen(TFT_BLUE);  // Задаваме син фон
-  tft.setTextColor(TFT_YELLOW, TFT_BLUE);  // Задаваме жълти букви на син фон
-  tft.setTextSize(sizeText);  // Задаваме размера на текста
+  initializeDisplay();  // Инициализация на дисплея
 
   pinMode(LED_PIN, OUTPUT);  // Настройка на пина за светодиода като изход
 
@@ -148,72 +124,14 @@ void loop() {
     int finalAdcAverage_OU1 = adcAvgTotal_OU1 / numAverages;
     int finalVccAverage = vccAvgTotal / numAverages;
     int delta = finalVccAverage - finalAdcAverage_OU1;
-    //int delta = -finalVccAverage + finalAdcAverage_OU1;
 
     // Изчисляване на скоростта на въздушния поток
-    //int pressureDifference = finalAdcAverage_OU2 - ADCoffset;
     int pressureDifference = -finalAdcAverage_OU2 + ADCoffset;
     presureReal = (3.0 / 873) * pressureDifference;  // Линейна зависимост
     float airSpeed = AirSpeed(presureReal, D, d);  // Примерни стойности за D и d
     float debit = 3.14159 * pow((D / 2), 2) * airSpeed * 3600;
 
-    int numberSize = 7;
-    char buffer[numberSize];
-
-    // Визуализиране на стойностите на дисплея
-    tft.setCursor(indentText, 10); // Ред 1
-    tft.print("Vcc: ");
-    tft.fillRect(indentText + 5 * 6 * sizeText, 10, 120, heightText, TFT_BLUE);  // Изчистване на предишното показание
-    tft.setCursor(indentText + 5 * 6 * sizeText, 10);
-    tft.print(finalVccAverage);
-
-    tft.setCursor(indentText, 10 + 1 * lineSpacing); // Ред 2
-    tft.print("Vsensor: ");
-    tft.fillRect(indentText + 9 * 6 * sizeText, 10 + 1 * lineSpacing, 120, heightText, TFT_BLUE);  // Изчистване на предишното показание
-    tft.setCursor(indentText + 9 * 6 * sizeText, 10 + 1 * lineSpacing);
-    tft.print(finalAdcAverage_OU1);
-
-    tft.setCursor(indentText, 10 + 2 * lineSpacing); // Ред 3
-    tft.print("Diff: ");
-    tft.fillRect(indentText + 6 * 6 * sizeText, 10 + 2 * lineSpacing, 120, heightText, TFT_BLUE);  // Изчистване на предишното показание
-    tft.setCursor(indentText + 6 * 6 * sizeText, 10 + 2 * lineSpacing);
-    tft.print(delta);
-
-    tft.setCursor(indentText, 10 + 3 * lineSpacing); // Ред 4
-    tft.print("ADCoffset: ");
-    tft.fillRect(indentText + 11 * 6 * sizeText, 10 + 3 * lineSpacing, 120, heightText, TFT_BLUE);  // Изчистване на предишното показание
-    tft.setCursor(indentText + 11 * 6 * sizeText, 10 + 3 * lineSpacing);
-    tft.print(ADCoffset);
-
-    tft.setCursor(indentText, 10 + 4 * lineSpacing); // Ред 5
-    tft.print("ADC: ");
-    tft.fillRect(indentText + 5 * 6 * sizeText, 10 + 4 * lineSpacing, 120, heightText, TFT_BLUE);  // Изчистване на предишното показание
-    tft.setCursor(indentText + 5 * 6 * sizeText, 10 + 4 * lineSpacing);
-    tft.print(pressureDifference);
-
-    tft.setCursor(indentText, 10 + 5 * lineSpacing); // Ред 6
-    tft.print("Presure =");
-    tft.fillRect(indentText + 9 * 6 * sizeText, 10 + 5 * lineSpacing, numberSize * lengthText, heightText, TFT_RED);  // Изчистване на предишното показание
-    tft.setCursor(indentText + 9 * 6 * sizeText, 10 + 5 * lineSpacing);
-    sprintf(buffer, "%6.2f", presureReal); // Форматиране на числото
-    tft.print(buffer);
-    tft.print(" mmH2O");
-
-    tft.setCursor(indentText, 10 + 6 * lineSpacing); // Ред 7
-    tft.print("Vair =");
-    tft.fillRect(indentText + 6 * 6 * sizeText, 10 + 6 * lineSpacing, 6 * lengthText, heightText, TFT_BLUE);  // Изчистване на предишното показание
-    tft.setCursor(indentText + 6 * 6 * sizeText, 10 + 6 * lineSpacing);
-    sprintf(buffer, "%6.1f", airSpeed); // Форматиране на числото с точност до един знак след десетичната точка
-    tft.print(buffer);
-    tft.print(" m/s");
-
-    tft.setCursor(indentText, 10 + 7 * lineSpacing); // Ред 8
-    tft.print("Wair =");
-    tft.fillRect(indentText + 6 * 6 * sizeText, 10 + 7 * lineSpacing, 6 * lengthText, heightText, TFT_BLUE);  // Изчистване на предишното показание
-    tft.setCursor(indentText + 6 * 6 * sizeText, 10 + 7 * lineSpacing);
-    sprintf(buffer, "%6d", (int)debit); // Форматиране на числото като цяло число
-    tft.print(buffer);
-    tft.print(" m3/h");
+    display_on(finalVccAverage, finalAdcAverage_OU1, delta, ADCoffset, pressureDifference, presureReal, airSpeed, debit);
 
     // Превключване на състоянието на светодиода
     // digitalWrite(LED_PIN, !digitalRead(LED_PIN));
