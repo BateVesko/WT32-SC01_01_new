@@ -12,9 +12,14 @@ int lengthText = 6 * sizeText;
 
 void initializeDisplay() {
 
+  tft.begin();
+  tft.setRotation(3);  // Ротация на екрана в позиция 3
+  tft.fillScreen(TFT_BLUE);  // Задаваме син фон
+  tft.setTextColor(TFT_YELLOW, TFT_BLUE);  // Задаваме жълти букви на син фон
+  tft.setTextSize(sizeText);  // Задаваме размера на текста
+
   //Serial.println("Инициализация...");
   
-
   // Инициализация на масивите с нули
   // for (int i = 0; i < numMeasurements; i++) {
   //   adcReadings_OU2[i] = 0;
@@ -28,27 +33,7 @@ void initializeDisplay() {
   // }
 
   //Serial.println("Инициализация завършена");
-
-    tft.begin();
-    tft.setRotation(3);  // Ротация на екрана в позиция 3
-    tft.fillScreen(TFT_BLUE);  // Задаваме син фон
-    tft.setTextColor(TFT_YELLOW, TFT_BLUE);  // Задаваме жълти букви на син фон
-    tft.setTextSize(sizeText);  // Задаваме размера на текста
 }
-
-// void displayTemperature(float temp) {
-//     tft.setCursor(0, 0);
-//     tft.setTextColor(TFT_WHITE, TFT_BLACK);
-//     tft.setTextSize(2);
-//     tft.printf("Temperature: %.2f C", temp);
-// }
-
-// void displayPressure(float pressure) {
-//     tft.setCursor(0, 30);
-//     tft.setTextColor(TFT_WHITE, TFT_BLACK);
-//     tft.setTextSize(2);
-//     tft.printf("Pressure: %.2f Pa", pressure);
-// }
 
 void display_on(int finalVccAverage, int finalAdcAverage_OU1, int delta, int ADCoffset, int pressureDifference, float presureReal, float airSpeed, float debit) {
     int numberSize = 7;
@@ -109,5 +94,19 @@ void display_on(int finalVccAverage, int finalAdcAverage_OU1, int delta, int ADC
     tft.print(buffer);
     tft.print(" m3/h");
 }
+
+// void displayTemperature(float temp) {
+//     tft.setCursor(0, 0);
+//     tft.setTextColor(TFT_WHITE, TFT_BLACK);
+//     tft.setTextSize(2);
+//     tft.printf("Temperature: %.2f C", temp);
+// }
+
+// void displayPressure(float pressure) {
+//     tft.setCursor(0, 30);
+//     tft.setTextColor(TFT_WHITE, TFT_BLACK);
+//     tft.setTextSize(2);
+//     tft.printf("Pressure: %.2f Pa", pressure);
+// }
 
 #endif
