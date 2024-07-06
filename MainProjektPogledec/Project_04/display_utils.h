@@ -19,13 +19,14 @@ int temp3 = 0;
 bool memoryTextDisplayed = false;
 
 int randomTemperature() {
-  return (rand() % 45) - 9; // Генерира случайно число между -9 и 35
+  //return (rand() % 45) - 9; // Генерира случайно число между -9 и 35
+  return (rand() % 5) + 18; // Генерира случайно число между -9 и 35
 }
 
 // Функция за изобразяване на IP адреса
 void displayIPAddress() {
   uint16_t colorBackIP = tft.color565(247, 247, 0);
-  tft.fillRect(80, 0, 196, 22, colorBackIP);
+  tft.fillRect(80, 0, 204, 22, colorBackIP);
   tft.setCursor(82, 4);
   tft.setTextColor(TFT_BLUE, colorBackIP);
   tft.setTextSize(2);
