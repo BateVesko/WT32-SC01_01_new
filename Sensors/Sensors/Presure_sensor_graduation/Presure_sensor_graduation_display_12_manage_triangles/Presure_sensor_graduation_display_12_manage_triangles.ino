@@ -3,6 +3,7 @@
 #include <driver/ledc.h> // Включване на заглавния файл за LEDC функции
 #include "data_visualize.h"
 #include "PWM_generator.h"
+#include <variable_set_triangles.h>
 
 #define ANALOG_PIN_OU2 2  // Използваме GPIO2 за аналогов вход (изход ОУ2)
 #define ANALOG_PIN_OU1 26 // Използваме GPIO26 за аналогов вход (изход ОУ1)
@@ -16,8 +17,8 @@ float presureReal = 0.0;
 
 const float D = 0.110;
 const float d = 0.070;
-const int numMeasurements = 20;  // Брой измервания за осредняване
-const int numAverages = 20;  // Брой усреднени стойности за допълнително осредняване
+const int numMeasurements = 5;  // Брой измервания за осредняване
+const int numAverages = 5;  // Брой усреднени стойности за допълнително осредняване
 
 int adcReadings_OU2[numMeasurements];  // Масив за съхранение на измерванията на ОУ2
 int adcReadings_OU1[numMeasurements];  // Масив за съхранение на измерванията на ОУ1
@@ -50,7 +51,11 @@ void setup() {
   delay(5000);  // Пауза за уравновесяване на нивото на стенда
 
   initializeDisplay();  // Инициализация на дисплея
+  //initializeScreen();
+  drawTriangles();
+  updatePwmDisplay();
   initializePWM(LED_PIN);  // *****************
+  Wire.begin(ALT_SDA, ALT_SCL);
 
   pinMode(LED_PIN, OUTPUT);  // Настройка на пина за светодиода като изход
 
@@ -66,12 +71,9 @@ void setup() {
   }
   ADCoffset = adcTotal_OU2 / numInitialMeasurements;
 
-  // Настройка на PWM
-  //setPWM();
   Serial.println("PWM инициализация завършена");
 
-  // Ако използваш FreeRTOS задача, стартирай задачата
-  //xTaskCreate(generatePWM, "generatePWM", 1024, NULL, 1, NULL);
+  setPWM(LED_PIN, 0);  // Настройка на PWM на 0
 }
 
 void loop() {
@@ -134,10 +136,23 @@ void loop() {
 
     display_on(finalVccAverage, finalAdcAverage_OU1, delta, ADCoffset, pressureDifference, presureReal, airSpeed, debit);
 
-    setPWM(LED_PIN, pressureDifference);  // *******************************
+
+
+    //setPWM(LED_PIN, pressureDifference);  // *******************************
 
     // Превключване на състоянието на светодиода
     // digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+  }
+
+  touches = ts.read_touch_number();
+  if (touches > 0) {
+    touches = 0;
+    uint16_t x = ts.read_touch1_x();
+    uint16_t y = ts.read_touch1_y();
+    uint16_t newX = 480 - y;
+    uint16_t newY = x;
+    handleTouch(newX, newY);
+    delay(250);
   }
 }
 

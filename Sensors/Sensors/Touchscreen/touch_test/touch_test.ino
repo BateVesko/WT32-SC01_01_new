@@ -19,8 +19,8 @@ void setup() {
 
     tft.begin();
     tft.setRotation(3);  // Ротация на екрана в позиция 1
-    tft.fillScreen(TFT_BLACK);  // Почистване на екрана, задаване на черен цвят
-    tft.fillRect(0, 0, 10, 10, TFT_RED);
+    tft.fillScreen(TFT_GREEN);  // Почистване на екрана, задаване на черен цвят
+    tft.fillRect(20, 20, 100, 100, TFT_RED);
 }
 
 void loop() {
