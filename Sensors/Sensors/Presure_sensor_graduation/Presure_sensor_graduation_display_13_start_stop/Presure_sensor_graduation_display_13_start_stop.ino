@@ -6,6 +6,8 @@
 #include <variable_set_triangles.h>
 #include <button_rect.h>
 
+//#include "TouchScreen.h"
+
 #define ANALOG_PIN_OU2 2   // Използваме GPIO2 за аналогов вход (изход ОУ2)
 #define ANALOG_PIN_OU1 26  // Използваме GPIO26 за аналогов вход (изход ОУ1)
 #define VCC_PIN 35         // Използваме GPIO35 за измерване на Vcc чрез делител на напрежение
@@ -147,6 +149,12 @@ void loop() {
     touches = 0;
     uint16_t x = ts.read_touch1_x();
     uint16_t y = ts.read_touch1_y();
+
+  // TSPoint touches = ts.getPoint(); // проверка за докосване на тъча
+  // if (touches.z > ts.pressureThreshhold) {
+  //   uint16_t x = touches.x;
+  //   uint16_t y = touches.y;
+
     uint16_t newX = 480 - y;
     uint16_t newY = x;
     Serial.print("X: ");

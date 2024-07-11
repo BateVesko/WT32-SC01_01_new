@@ -2,3 +2,5 @@
 2.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/Sensors/Sensors/Presure_sensor_graduation/Presure_sensor_graduation_display_11_NewStr_copy_20240706165909/PWM_generator.h
 3.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/Sensors/Sensors/Presure_sensor_graduation/Presure_sensor_graduation_display_11_NewStr_copy_20240706165909/data_visualize.h
 4.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/Sensors/Sensors/Presure_sensor_graduation/Presure_sensor_graduation_display_11_NewStr_copy_20240706165909/ForChatGPT.h
+5.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/Sensors/Sensors/Presure_sensor_graduation/Presure_sensor_graduation_display_13_start_stop/variable_set_triangles.h
+6.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/Sensors/Sensors/Presure_sensor_graduation/Presure_sensor_graduation_display_13_start_stop/button_rect.h
