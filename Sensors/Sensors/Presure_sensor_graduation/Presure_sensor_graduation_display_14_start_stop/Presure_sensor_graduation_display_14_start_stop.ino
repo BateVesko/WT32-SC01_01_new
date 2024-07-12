@@ -168,7 +168,7 @@ void loop() {
     Serial.print(" Y: ");
     Serial.println(newY);
     handleTouch(newX, newY);  // -> variable_set_triangles.h
-    delay(250);
+    delay(250);  // интервал между две възможни докосвания на тъча
   }
 }
 
