@@ -23,6 +23,10 @@ uint16_t posLeft = 378;
 uint16_t posTop = 18;
 uint8_t textSize = 3;
 
+extern bool startBug;
+extern unsigned long currentTime;
+extern unsigned long lastBugTime;
+extern uint8_t countBug;
 
 uint8_t widthTriangle = 4 * 7 * textSize;
 uint8_t heightTriangle = widthTriangle;
@@ -69,18 +73,28 @@ void handleTouch(uint16_t newX, uint16_t newY) {
     myPwm = constrain(myPwm, minPwm, maxPwm);
     myPwmString = String(myPwm) + "%";
     updatePwmDisplay();  // -> по-горе
+    countBug = 0;              // нулиране на брояча за бъг
+    displayBugTime(countBug);  // визуализиране брояча на бъг
+    startBug = false;
   } else if (newX > posLeft && newX < posLeft + widthTriangle && newY > posTop + heightTriangle + distTriangle && newY < posTop + 2 * heightTriangle + distTriangle) {
     myPwm -= pwmStep;
     myPwm = constrain(myPwm, minPwm, maxPwm);
     myPwmString = String(myPwm) + "%";
     updatePwmDisplay();  // -> по-горе
+    countBug = 0;              // нулиране на брояча за бъг
+    displayBugTime(countBug);  // визуализиране брояча на бъг
+    startBug = false;
   } else if (newX > 50 && newX < 50 + widthTriangle && newY > posTop + 2 * heightTriangle + distTriangle + 4 * textSize && newY < posTop + 2 * heightTriangle + distTriangle + 4 * textSize + 3 * 7 * textSize) {
-    tft.fillRect(50, posTop + 2 * heightTriangle + distTriangle + 4 * textSize, widthTriangle, 3 * 7 * textSize, bgColor); // Изчистване на зоната на бутона
-    drawButton_01(fanOn);  // -> button_rect.h
+    tft.fillRect(50, posTop + 2 * heightTriangle + distTriangle + 4 * textSize, widthTriangle, 3 * 7 * textSize, bgColor);  // Изчистване на зоната на бутона
+    drawButton_01(fanOn);                                                                                                   // -> button_rect.h
     fanOn = !fanOn;
     //drawButton_01(fanOn);
+    countBug = 0;              // нулиране на брояча за бъг
+    displayBugTime(countBug);  // визуализиране брояча на бъг
+    startBug = true;
+    lastBugTime = currentTime;
   }
-
+  
   if (!fanOn) {
     setPWM(LED_PIN, 0);
   } else {
