@@ -56,11 +56,11 @@ void setup() {
 
   initializeDisplay();  // Инициализация на дисплея
   //initializeScreen();
-  drawTriangles();
-  drawButton_01(true);
-  updatePwmDisplay();
-  initializePWM(LED_PIN);  // *****************
-  displayBugTime(0);
+  drawTriangles();  // -> variable_set_triangles
+  drawButton_01(true);  // -> button_rect
+  updatePwmDisplay();  // -> variable_set_triangles
+  initializePWM(LED_PIN);  // -> PWM_generator
+  displayBugTime(0);  // -> button_rect
   Wire.begin(ALT_SDA, ALT_SCL);
 
   pinMode(LED_PIN, OUTPUT);  // Настройка на пина за светодиода като изход
@@ -140,7 +140,7 @@ void loop() {
     float airSpeed = AirSpeed(presureReal, D, d);    // Примерни стойности за D и d
     float debit = 3.14159 * pow((D / 2), 2) * airSpeed * 3600;
 
-    display_on(finalVccAverage, finalAdcAverage_OU1, delta, ADCoffset, pressureDifference, presureReal, airSpeed, debit);  // ->
+    display_on(finalVccAverage, finalAdcAverage_OU1, delta, ADCoffset, pressureDifference, presureReal, airSpeed, debit);  // -> data_vizualize.h
 
     // Превключване на състоянието на светодиода
     // digitalWrite(LED_PIN, !digitalRead(LED_PIN));
@@ -148,15 +148,15 @@ void loop() {
 
   //*********************************************
 
-  if (currentTime - lastBugTime >= 1000) {
+  if (currentTime - lastBugTime >= 1000) {  // Брояч през 1сек.
     lastBugTime = currentTime;
     if (startBug) {
       countBug++;
-      displayBugTime(countBug);  // визуализиране брояча на бъг
+      displayBugTime(countBug);  // визуализиране брояча на бъг -> button_rect
     }
   }
 
-  int touches = ts.read_touch_number();  // проверка за докосване на тъча
+  int touches = ts.read_touch_number();  // проверка за докосване на тъча 
   if (touches > 0) {
     //touches = 0;
     uint16_t x = ts.read_touch1_x();
@@ -167,10 +167,8 @@ void loop() {
     Serial.print(newX);
     Serial.print(" Y: ");
     Serial.println(newY);
-
-    delay(250);
-
     handleTouch(newX, newY);  // -> variable_set_triangles.h
+    delay(250);
   }
 }
 

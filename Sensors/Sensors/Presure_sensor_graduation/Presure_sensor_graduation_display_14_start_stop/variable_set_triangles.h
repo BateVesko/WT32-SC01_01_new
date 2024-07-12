@@ -42,15 +42,15 @@ int8_t pwmStep = 10;
 String myPwmString = String(myPwm) + "%";
 bool fanOn = false;
 
-void initializeScreen() {
-  tft.fillScreen(bgColor);
-  if (bgColor != TFT_WHITE) {
-    txtColor = TFT_YELLOW;
-  }
-  tft.setTextColor(txtColor);
-  tft.setTextDatum(TC_DATUM);
-  tft.setTextSize(textSize);
-}
+// void initializeScreen() {  // не се ползва
+//   tft.fillScreen(bgColor);
+//   if (bgColor != TFT_WHITE) {  // ако фона не е бял прави буквите жълти. Иначе остават черни.
+//     txtColor = TFT_YELLOW;
+//   }
+//   tft.setTextColor(txtColor);  // цвят на текста
+//   tft.setTextDatum(TC_DATUM);  // текст в позиция горе/средата спрямо зададените координати
+//   tft.setTextSize(textSize);  // размер на текста
+// }
 
 void drawTriangles() {
   tft.fillTriangle(posLeft + widthTriangle / 2, posTop, posLeft, posTop + heightTriangle, posLeft + widthTriangle, posTop + heightTriangle, TFT_GREEN);
@@ -60,30 +60,30 @@ void drawTriangles() {
 }
 
 void updatePwmDisplay() {
-  tft.setTextDatum(TC_DATUM);
-  tft.setTextSize(textSize);
+  tft.setTextDatum(TC_DATUM);  // текст в позиция горе/средата спрямо зададените координати
+  tft.setTextSize(textSize);  // размер на текста
   tft.setTextColor(TFT_YELLOW, TFT_BLUE);  // Задаваме жълти букви на син фон
-  tft.fillRect(posLeft, posTop + heightTriangle + 4 * textSize, widthTriangle, 7 * textSize, bgColor);
-  tft.drawString(myPwmString, posLeft + widthTriangle / 2, posTop + heightTriangle + 4 * textSize);
+  tft.fillRect(posLeft, posTop + heightTriangle + 4 * textSize, widthTriangle, 7 * textSize, bgColor);  // зачиства старото показание
+  tft.drawString(myPwmString, posLeft + widthTriangle / 2, posTop + heightTriangle + 4 * textSize);  // изписва новото показание
 }
 
-void handleTouch(uint16_t newX, uint16_t newY) {
-  if (newX > posLeft && newX < posLeft + widthTriangle && newY > posTop && newY < posTop + heightTriangle) {
-    myPwm += pwmStep;
-    myPwm = constrain(myPwm, minPwm, maxPwm);
-    myPwmString = String(myPwm) + "%";
+void handleTouch(uint16_t newX, uint16_t newY) {  // обработка на тъча
+  if (newX > posLeft && newX < posLeft + widthTriangle && newY > posTop && newY < posTop + heightTriangle) {  // ако е горна стрелка
+    myPwm += pwmStep;  // увеличава PWM със стъпката
+    myPwm = constrain(myPwm, minPwm, maxPwm);  // държи стойността между двете граници
+    myPwmString = String(myPwm) + "%";  // добавя дименсия % след числото
     updatePwmDisplay();  // -> по-горе
     countBug = 0;              // нулиране на брояча за бъг
     displayBugTime(countBug);  // визуализиране брояча на бъг
-    startBug = false;
+    startBug = false;  //  спира брояча
   } else if (newX > posLeft && newX < posLeft + widthTriangle && newY > posTop + heightTriangle + distTriangle && newY < posTop + 2 * heightTriangle + distTriangle) {
-    myPwm -= pwmStep;
-    myPwm = constrain(myPwm, minPwm, maxPwm);
-    myPwmString = String(myPwm) + "%";
+    myPwm -= pwmStep;  // намалява PWM със стъпката
+    myPwm = constrain(myPwm, minPwm, maxPwm);  // държи стойността между двете граници
+    myPwmString = String(myPwm) + "%";  // добавя дименсия % след числото
     updatePwmDisplay();  // -> по-горе
     countBug = 0;              // нулиране на брояча за бъг
     displayBugTime(countBug);  // визуализиране брояча на бъг
-    startBug = false;
+    startBug = false;  //  спира брояча
   } else if (newX > 50 && newX < 50 + widthTriangle && newY > posTop + 2 * heightTriangle + distTriangle + 4 * textSize && newY < posTop + 2 * heightTriangle + distTriangle + 4 * textSize + 3 * 7 * textSize) {
     tft.fillRect(50, posTop + 2 * heightTriangle + distTriangle + 4 * textSize, widthTriangle, 3 * 7 * textSize, bgColor);  // Изчистване на зоната на бутона
     drawButton_01(fanOn);                                                                                                   // -> button_rect.h
@@ -91,11 +91,11 @@ void handleTouch(uint16_t newX, uint16_t newY) {
     //drawButton_01(fanOn);
     countBug = 0;              // нулиране на брояча за бъг
     displayBugTime(countBug);  // визуализиране брояча на бъг
-    startBug = true;
+    startBug = true;  //  включва брояча
     lastBugTime = currentTime;
   }
   
-  if (!fanOn) {
+  if (!fanOn) {  // вкл/изкл PWM
     setPWM(LED_PIN, 0);
   } else {
     setPWM(LED_PIN, myPwm);
