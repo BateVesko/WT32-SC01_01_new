@@ -34,7 +34,7 @@ uint8_t distTriangle = 15 * textSize;
 uint32_t bgColor = TFT_BLUE;
 uint32_t txtColor;
 
-uint8_t touches;
+//uint8_t touches;
 int8_t minPwm = 0;
 int8_t maxPwm = 100;
 int myPwm = minPwm;
@@ -42,7 +42,7 @@ int8_t pwmStep = 10;
 String myPwmString = String(myPwm) + "%";
 bool fanOn = false;
 
-// void initializeScreen() {  // не се ползва
+// void initializeScreen() {  // функциията не се ползва 
 //   tft.fillScreen(bgColor);
 //   if (bgColor != TFT_WHITE) {  // ако фона не е бял прави буквите жълти. Иначе остават черни.
 //     txtColor = TFT_YELLOW;
@@ -88,7 +88,6 @@ void handleTouch(uint16_t newX, uint16_t newY) {  // обработка на т�
     tft.fillRect(50, posTop + 2 * heightTriangle + distTriangle + 4 * textSize, widthTriangle, 3 * 7 * textSize, bgColor);  // Изчистване на зоната на бутона
     drawButton_01(fanOn);                                                                                                   // -> button_rect.h
     fanOn = !fanOn;
-    //drawButton_01(fanOn);
     countBug = 0;              // нулиране на брояча за бъг
     displayBugTime(countBug);  // визуализиране брояча на бъг
     startBug = true;  //  включва брояча

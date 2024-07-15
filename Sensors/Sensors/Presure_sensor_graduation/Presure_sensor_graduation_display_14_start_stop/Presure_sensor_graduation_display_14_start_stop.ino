@@ -3,8 +3,8 @@
 #include <driver/ledc.h>  // Включване на заглавния файл за LEDC функции
 #include "data_visualize.h"
 #include "PWM_generator.h"
-#include <variable_set_triangles.h>
-#include <button_rect.h>
+#include "variable_set_triangles.h"
+#include "button_rect.h"
 
 #define ANALOG_PIN_OU2 2   // Използваме GPIO2 за аналогов вход (изход ОУ2)
 #define ANALOG_PIN_OU1 26  // Използваме GPIO26 за аналогов вход (изход ОУ1)
@@ -49,10 +49,10 @@ float AirSpeed(float pressureReal, float D, float d) {
 }
 
 void setup() {
-  Serial.begin(9600);              // Започваме сериен монитор на 9600 бауда
+  Serial.begin(115200);              // Започваме сериен монитор на 9600 бауда
   analogSetAttenuation(ADC_11db);  // Настройка на затихването за обхват 0-3.3V
 
-  delay(5000);  // Пауза за уравновесяване на нивото на стенда
+  //delay(1000);  // Пауза за уравновесяване на нивото на стенда
 
   initializeDisplay();  // Инициализация на дисплея
   //initializeScreen();
@@ -81,6 +81,8 @@ void setup() {
 
   setPWM(LED_PIN, 0);  // Настройка на PWM на 0
 }
+
+uint8_t touches;
 
 void loop() {
   currentTime = millis();
@@ -156,7 +158,7 @@ void loop() {
     }
   }
 
-  int touches = ts.read_touch_number();  // проверка за докосване на тъча 
+  touches = ts.read_touch_number();  // проверка за докосване на тъча 
   if (touches > 0) {
     //touches = 0;
     uint16_t x = ts.read_touch1_x();
@@ -168,8 +170,10 @@ void loop() {
     Serial.print(" Y: ");
     Serial.println(newY);
     handleTouch(newX, newY);  // -> variable_set_triangles.h
-    delay(250);  // интервал между две възможни докосвания на тъча
+    delay(500);  // интервал между две възможни докосвания на тъча
   }
+
+  delay(10);  // малко закъснение за стабилизация. Работи неизвестно как!!!
 }
 
 // Пинове за използване:
