@@ -5,3 +5,7 @@
 5.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/MainProjektPogledec/Project_04/memory_utils.h
 6.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/MainProjektPogledec/Project_04/rotate_icon_new.h
 7.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/MainProjektPogledec/Project_04/touch_utils.h
+8.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/MainProjektPogledec/Project_04_copy_202407_18_1225/ColorUtils.h
+9.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/MainProjektPogledec/Project_04_copy_202407_18_1225/PWM_generator.h
+10.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/MainProjektPogledec/Project_04_copy_202407_18_1225/frame_generator.h
+11.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/MainProjektPogledec/Project_04_copy_202407_18_1225/variable_set_triangles.h
