@@ -8,6 +8,7 @@
 #include "rotate_icon_new.h"
 #include "HTTPServer.h"
 #include "touch_utils.h"
+#include "PWM_generator.h"
 
 const char* ssid = "TP-Link_1AEA";
 const char* password = "83590566";
@@ -33,6 +34,7 @@ struct Icon {
 // Масив от иконки
 Icon icons[] = {
   { earth, sizeof(earth), 80, 80, 0, 0 },
+  { fan_0_new, sizeof(fan_0_new), 80, 80, 0, 81 },
   { heater, sizeof(heater), 80, 80, 0, 162 },
   { lamp, sizeof(lamp), 80, 72, 0, 243 },
   { http, sizeof(http), 80, 80, 400, 0 },
@@ -64,30 +66,32 @@ void setup() {
   Serial.begin(115200);
   tft.begin();
   tft.setRotation(3);
-  tft.fillScreen(0xf7be);
+  tft.fillScreen(TFT_WHITE);  // 0xf7be - онова мръсно бяло
+  tft.fillRect(80, 0, 320, 320, tft.color565(0, 255, 255)); 
 
-  for (int i = 0; i < sizeof(icons) / sizeof(icons[0]); i++) {
-    currentIconXpos = icons[i].xpos;
-    currentIconYpos = icons[i].ypos;
-    displayIcon(icons[i]);
-  }
+  initIcons();
+  tft.fillRect(80, 165, 213, 135, tft.color565(0, 255, 255)); 
 
   initWiFiAndServer();
-
-  displayIPAddress();
+  initializePWM(LED_PIN);  // -> PWM_generator
   Wire.begin(ALT_SDA, ALT_SCL);
   rotate_icon_new(tft, png, Ix_fan, Iy_fan, currentIconIndex_fan, direction_fan);
+  setPWM(LED_PIN, 0);
+  displayTextInfo();
+  displayIPAddress();
+  tft.drawLine(80, 0, 80, 320, mainBorderColor);
+  tft.drawLine(400, 0, 400, 320, mainBorderColor);
 }
 
 void loop() {
   unsigned long currentTime = millis();
-  if (currentTime - lastUpdateTime_Count >= count_time) {
+  if (currentTime - lastUpdateTime_Count >= count_time && !settingMode && !wiFiMode) {
     lastUpdateTime_Count = currentTime;
     displayMemoryInfo(counter);    // Показва брояча
-    counter = (counter + 1) % 99;  // Увеличаване на брояча ************
+    counter = (counter + 1) % 999;  // Увеличаване на брояча ************
   }
 
-  if (currentTime - lastUpdateTime_RotIcon_fan >= pwmPeriod && rotateGo) {
+  if (currentTime - lastUpdateTime_RotIcon_fan >= pwmPeriod && rotateGo && !settingMode) {  // 
     lastUpdateTime_RotIcon_fan = currentTime;
     rotate_icon_new(tft, png, Ix_fan, Iy_fan, currentIconIndex_fan, direction_fan);
     currentIconIndex_fan = (currentIconIndex_fan + 1) % 4;
@@ -113,4 +117,18 @@ void pngDraw(PNGDRAW* pDraw) {
   uint16_t lineBuffer[MAX_IMAGE_WIDTH];
   png.getLineAsRGB565(pDraw, lineBuffer, PNG_RGB565_BIG_ENDIAN, 0xffffffff);
   tft.pushImage(currentIconXpos, currentIconYpos + pDraw->y, pDraw->iWidth, 1, lineBuffer);  // Използвайте текущите позиции и pDraw->y
+}
+
+void initIcons(){
+    for (int i = 0; i < sizeof(icons) / sizeof(icons[0]); i++) {
+    currentIconXpos = icons[i].xpos;
+    currentIconYpos = icons[i].ypos;
+    displayIcon(icons[i]);
+  }
+}
+
+void reloadIcon(int numIcon){  // изобразява отново икона по номера в Icon icons[]
+  currentIconXpos = icons[numIcon].xpos;
+  currentIconYpos = icons[numIcon].ypos;
+  displayIcon(icons[numIcon]);
 }

@@ -6,7 +6,8 @@
 #include <FT6336U.h>
 #include <TFT_eSPI.h>
 #include <driver/ledc.h>
-//#include <PWM_generator.h>
+#include <PWM_generator.h>
+#include "touch_utils.h"
 //#include <button_rect.h>
 
 // Дефиниране на пиновете и обектите
@@ -14,16 +15,16 @@
 // #define ALT_SCL 19
 // #define TFT_RST -1
 // #define TFT_INT 39
-// #define LED_PIN 25  // Използваме GPIO25 за светодиод
+#define LED_PIN 25  // Използваме GPIO25 за светодиод
 
 // FT6336U ts(ALT_SDA, ALT_SCL, TFT_RST, TFT_INT);
 //TFT_eSPI tft = TFT_eSPI();
 
 //extern TFT_eSPI tft;
 
-uint16_t posLeft = 100;
-uint16_t posTop = 165;
-uint8_t textSize = 2;
+uint16_t posLeft = 198;
+uint16_t posTop = 53;
+uint8_t textSize = 3;
 
 //extern bool startBug;
 //extern unsigned long currentTime;
@@ -36,8 +37,8 @@ extern uint16_t pwmPeriod;
 uint8_t widthTriangle = 4 * 7 * textSize;
 uint8_t heightTriangle = widthTriangle;
 uint8_t distTriangle = 15 * textSize;
-uint32_t bgColor = TFT_WHITE;
-uint32_t txtColor;
+uint16_t bgColor = tft.color565(0, 255, 255);
+uint16_t txtColor = TFT_BLUE;
 
 //uint8_t touches;
 int8_t minPwm = 0;
@@ -60,15 +61,15 @@ bool fanOn = false;
 
 void drawTriangles() {
   tft.fillTriangle(posLeft + widthTriangle / 2, posTop, posLeft, posTop + heightTriangle, posLeft + widthTriangle, posTop + heightTriangle, TFT_GREEN);
-  tft.drawTriangle(posLeft + widthTriangle / 2, posTop, posLeft, posTop + heightTriangle, posLeft + widthTriangle, posTop + heightTriangle, TFT_BLACK);
+  tft.drawTriangle(posLeft + widthTriangle / 2, posTop, posLeft, posTop + heightTriangle, posLeft + widthTriangle, posTop + heightTriangle, txtColor);
   tft.fillTriangle(posLeft + widthTriangle / 2, posTop + 2 * heightTriangle + distTriangle, posLeft, posTop + heightTriangle + distTriangle, posLeft + widthTriangle, posTop + heightTriangle + distTriangle, TFT_RED);
-  tft.drawTriangle(posLeft + widthTriangle / 2, posTop + 2 * heightTriangle + distTriangle, posLeft, posTop + heightTriangle + distTriangle, posLeft + widthTriangle, posTop + heightTriangle + distTriangle, TFT_BLACK);
+  tft.drawTriangle(posLeft + widthTriangle / 2, posTop + 2 * heightTriangle + distTriangle, posLeft, posTop + heightTriangle + distTriangle, posLeft + widthTriangle, posTop + heightTriangle + distTriangle, txtColor);
 }
 
 void updatePwmDisplay() {
   tft.setTextDatum(TC_DATUM);                                                                           // текст в позиция горе/средата спрямо зададените координати
   tft.setTextSize(textSize);                                                                            // размер на текста
-  tft.setTextColor(TFT_BLACK);                                                                          // Задаваме жълти букви на син фон
+  tft.setTextColor(txtColor);                                                                          // Задаваме сини букви на син фон
   tft.fillRect(posLeft, posTop + heightTriangle + 4 * textSize, widthTriangle, 7 * textSize, bgColor);  // зачиства старото показание
   tft.drawString(myPwmString, posLeft + widthTriangle / 2, posTop + heightTriangle + 4 * textSize);     // изписва новото показание
 }
@@ -82,10 +83,11 @@ void handleTouchTriangles(uint16_t newX, uint16_t newY) {
   if (newX > posLeft && newX < posLeft + widthTriangle && newY > posTop && newY < posTop + heightTriangle) {  // ако е горна стрелка
     myPwm += pwmStep;                                                                                         // увеличава PWM със стъпката
     myPwm = constrain(myPwm, minPwm, maxPwm);                                                                 // държи стойността между двете граници
-    pwmPeriod = map(myPwm, 10, 100, 500, 50);                                                                 // мащабира myPwm към ppwmPeriod
+    pwmPeriod = map(myPwm, 10, 100, 300, 30);                                                                 // мащабира myPwm към ppwmPeriod
     rotateGo = true;                                                                                          // разрешава въртенето
     myPwmString = String(myPwm) + "%";                                                                        // добавя дименсия % след числото
     updatePwmDisplay();
+    setPWM(LED_PIN, myPwm);
     Serial.println("Up");  // -> по-горе
     // countBug = 0;              // нулиране на брояча за бъг
     // displayBugTime(countBug);  // визуализиране брояча на бъг
@@ -97,6 +99,7 @@ void handleTouchTriangles(uint16_t newX, uint16_t newY) {
     if (myPwm == 0) rotateGo = false;
     myPwmString = String(myPwm) + "%";  // добавя дименсия % след числото
     updatePwmDisplay();                 // -> по-горе
+    setPWM(LED_PIN, myPwm);             // зарежда текущ PWM към вентилатора
     Serial.println("Down");
     // countBug = 0;              // нулиране на брояча за бъг
     // displayBugTime(countBug);  // визуализиране брояча на бъг

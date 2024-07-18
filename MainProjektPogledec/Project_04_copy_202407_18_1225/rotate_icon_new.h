@@ -14,10 +14,14 @@
 int currentIconXpos_new;
 int currentIconYpos_new;
 
+extern PNG png;
+extern int currentIconIndex_fan;
+extern char direction_fan;
+
 // Функция за изобразяване на икона
 void pngDrawNew(PNGDRAW* pDraw) {
   extern TFT_eSPI tft;
-  extern PNG png;
+  //extern PNG png;
   uint16_t lineBuffer[80]; // Размер на буфера за един ред пиксели
   png.getLineAsRGB565(pDraw, lineBuffer, PNG_RGB565_BIG_ENDIAN, 0xffffffff);
   tft.pushImage(currentIconXpos_new, currentIconYpos_new + pDraw->y, pDraw->iWidth, 1, lineBuffer);
@@ -53,6 +57,10 @@ void rotate_icon_new(TFT_eSPI &tft, PNG &png, int Ix, int Iy, int index, char di
     Serial.print("PNG error: ");
     Serial.println(rc);
   }
+}
+
+void buttonFrameDeleter(int Ix_fan, int Iy_fan){
+  rotate_icon_new(tft, png, Ix_fan, Iy_fan, currentIconIndex_fan, direction_fan);
 }
 
 #endif // ROTATE_ICON_NEW_H
