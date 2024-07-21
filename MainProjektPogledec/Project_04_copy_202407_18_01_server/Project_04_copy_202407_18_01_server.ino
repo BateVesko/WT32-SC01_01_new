@@ -1,4 +1,7 @@
 //Project_04
+// A1_6531 -> 48575443BD107EA3
+// TP-Link_1AEA -> 83590566
+
 #include <WiFi.h>
 #include <WebServer.h>
 #include <TFT_eSPI.h>
@@ -12,6 +15,7 @@
 
 // const char* homeSSID= "A1_6531";
 // const char* homePassword = "48575443BD107EA3";
+
 
 // Създаване на инстанция на библиотеката TFT_eSPI
 TFT_eSPI tft = TFT_eSPI();  // Invoke custom library
@@ -99,7 +103,7 @@ void loop() {
   }
 
   httpServer.handleClient();
-  //handleClient();
+  handleClient();
 
   handleTouch();
   delay(10);  // малко закъснение за стабилизация. Работи неизвестно как, но ако го няма се появява

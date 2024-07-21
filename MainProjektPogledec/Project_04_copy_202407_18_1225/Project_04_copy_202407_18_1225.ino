@@ -10,8 +10,8 @@
 #include "touch_utils.h"
 #include "PWM_generator.h"
 
-const char* ssid = "TP-Link_1AEA";
-const char* password = "83590566";
+//const char* ssid = "TP-Link_1AEA";
+//const char* password = "83590566";
 
 // Създаване на инстанция на библиотеката TFT_eSPI
 TFT_eSPI tft = TFT_eSPI();  // Invoke custom library
