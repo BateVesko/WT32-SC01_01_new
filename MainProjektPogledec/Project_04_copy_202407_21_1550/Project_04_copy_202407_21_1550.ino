@@ -1,4 +1,3 @@
-//Project_04
 // A1_6531 -> 48575443BD107EA3
 // TP-Link_1AEA -> 83590566
 
@@ -12,10 +11,6 @@
 #include "HTTPServer.h"
 #include "touch_utils.h"
 #include "PWM_generator.h"
-
-// const char* homeSSID= "A1_6531";
-// const char* homePassword = "48575443BD107EA3";
-
 
 // Създаване на инстанция на библиотеката TFT_eSPI
 TFT_eSPI tft = TFT_eSPI();  // Invoke custom library
@@ -62,9 +57,16 @@ int Iy_fan = 81;
 char direction_fan = 'r';
 bool rotateGo = false;
 uint16_t pwmPeriod = 0;
-int count_time = 1000;
+int count_time = 2000;
 
 int counter = 0;  // Брояч
+
+String ssidList;
+WebServer httpServer(80);
+
+String ssid = "";
+String password = "";
+String knownNetwork = "TP-Link_1AEA";  // име на "позната" мрежа
 
 void setup() {
   Serial.begin(115200);
@@ -85,25 +87,23 @@ void setup() {
   displayIPAddress();
   tft.drawLine(80, 0, 80, 320, mainBorderColor);
   tft.drawLine(400, 0, 400, 320, mainBorderColor);
-  initWiFiAndServer();
 }
 
 void loop() {
   unsigned long currentTime = millis();
-  if (currentTime - lastUpdateTime_Count >= count_time && !settingMode) {
+  if (currentTime - lastUpdateTime_Count >= count_time && !settingMode && !wiFiMode) {
     lastUpdateTime_Count = currentTime;
     displayMemoryInfo(counter);    // Показва брояча
     counter = (counter + 1) % 999;  // Увеличаване на брояча ************
   }
 
-  if (currentTime - lastUpdateTime_RotIcon_fan >= pwmPeriod && rotateGo && !fanMode) {  // 
+  if (currentTime - lastUpdateTime_RotIcon_fan >= pwmPeriod && rotateGo && !settingMode) {  // 
     lastUpdateTime_RotIcon_fan = currentTime;
     rotate_icon_new(tft, png, Ix_fan, Iy_fan, currentIconIndex_fan, direction_fan);
     currentIconIndex_fan = (currentIconIndex_fan + 1) % 4;
   }
 
   httpServer.handleClient();
-  handleClient();
 
   handleTouch();
   delay(10);  // малко закъснение за стабилизация. Работи неизвестно как, но ако го няма се появява
@@ -137,4 +137,36 @@ void reloadIcon(int numIcon){  // изобразява отново икона �
   currentIconXpos = icons[numIcon].xpos;
   currentIconYpos = icons[numIcon].ypos;
   displayIcon(icons[numIcon]);
+}
+
+void initWiFiAndServer() {
+  WiFi.disconnect(true);  // Принудително изключване на автоматичното свързване
+
+  // Инициализация на Access Point
+  WiFi.mode(WIFI_AP_STA); // Уверете се, че платката е в режим Access Point и станция
+  WiFi.softAP("BatevotoVeskovo_ESP32-AP_1", "12345678");  // Така ще се вижда точката за достъп към платката в режим AP
+
+  // Сканиране на наличните WiFi мрежи
+  int n = WiFi.scanNetworks();
+  for (int i = 0; i < n; ++i) {
+    String currentSSID = WiFi.SSID(i);
+
+    // Добавяне на SSID към списъка с налични мрежи
+    ssidList += "<option value=\"" + currentSSID + "\"";
+    if (currentSSID == knownNetwork) {
+        ssidList += " selected"; // Маркиране на позната мрежа като избрана
+    }
+    ssidList += ">" + currentSSID + "</option>";
+  }
+
+  // Инициализиране на HTTP сървъра
+  httpServer.on("/", handleRoot);
+  httpServer.on("/connect", HTTP_POST, handleConnect);
+  httpServer.on("/welcome", handleWelcome);  // Добавяне на маршрута за /welcome
+  httpServer.begin();
+  Serial.println("HTTP server started");
+
+  // Принтиране на IP адреса на AP
+  Serial.print("AP IP address: ");
+  Serial.println(WiFi.softAPIP());
 }
