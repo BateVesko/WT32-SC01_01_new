@@ -41,31 +41,34 @@ bool isTouched = false;
 //bool wiFiMode = false;
 //bool fanMode = false;
 
+void visualizeTouch(){
+  Serial.print("X: ");
+  Serial.print(newX);
+  Serial.print(" Y: ");
+  Serial.println(newY);
+  
+  tft.setCursor(10, 60);
+  tft.print("X: ");
+  tft.fillRect(46,60,36,14,TFT_BLUE);
+  tft.print(newX);
+
+  tft.setCursor(90, 60);
+  tft.print(" Y: ");
+  tft.fillRect(138,60,36,17,TFT_BLUE);
+  tft.println(newY);
+}
+
 void handleTouch() {                 // Примерна функция за обработка на тъч събития
   touches = ts.read_touch_number();  // проверка за докосване на тъча
-  if (touches > 0) {  // Има докосване и дисплея свети. Обработва се докосването
+  if (touches > 0) {  
     isTouched = true;
     // //touches = 0;
     uint16_t x = ts.read_touch1_x();
     uint16_t y = ts.read_touch1_y();
     newX = 480 - y;
     newY = x;
-    if(backlightOn){
-      Serial.print("X: ");
-      Serial.print(newX);
-      Serial.print(" Y: ");
-      Serial.println(newY);
-      
-      tft.setCursor(10, 60);
-      tft.print("X: ");
-      tft.fillRect(46,60,36,14,TFT_BLUE);
-      tft.print(newX);
-
-      tft.setCursor(90, 60);
-      tft.print(" Y: ");
-      tft.fillRect(138,60,36,17,TFT_BLUE);
-      tft.println(newY);
-    }else{// Има докосване и дисплея не свети. Включва се подсветката.
+    visualizeTouch();
+    if(!backlightOn){// Има докосване и дисплея свети. Обработва се докосването
       backlightOn = true;
       isTouched = true;
       digitalWrite(TFT_BL, HIGH);  // дисплея светва
