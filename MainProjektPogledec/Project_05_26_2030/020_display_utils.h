@@ -3,8 +3,8 @@
 #define DISPLAY_UTILS_H
 
 #include <TFT_eSPI.h>
-#include "memory_utils.h"
-#include "ColorUtils.h"
+#include "100_memory_utils.h"
+#include "090_ColorUtils.h"
 
 extern TFT_eSPI tft; // Деклариране на външен обект за дисплея
 extern int myPwm;  // % въздухообмен спрямо обема на помещението за час

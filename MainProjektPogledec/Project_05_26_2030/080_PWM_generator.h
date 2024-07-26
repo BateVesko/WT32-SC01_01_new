@@ -2,10 +2,10 @@
 #define PWM_GENERATOR_H
 
 #include <Arduino.h>
-//********************
+
 extern int8_t minPwm;
 extern int8_t maxPwm;
-//********************
+
 void initializePWM(uint8_t pin) {
     pinMode(pin, OUTPUT);  // инициализира пин IO25
 }

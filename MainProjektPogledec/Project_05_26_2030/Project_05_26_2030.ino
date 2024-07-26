@@ -5,13 +5,13 @@
 #include <WebServer.h>
 #include <TFT_eSPI.h>
 #include <PNGdec.h>
-#include "images.h"
-#include "display_utils.h"
-#include "rotate_icon_new.h"
-#include "HTTPServer.h"
-#include "touch_utils.h"
-#include "PWM_generator.h"
-#include "ColorUtils.h"
+#include "110_images.h"
+#include "020_display_utils.h"
+#include "040_rotate_icon.h"
+#include "070_HTTPServer.h"
+#include "030_touch_utils.h"
+#include "080_PWM_generator.h"
+#include "090_ColorUtils.h"
 
 // Създаване на инстанция на библиотеката TFT_eSPI
 TFT_eSPI tft = TFT_eSPI();  // Invoke custom library
@@ -48,7 +48,7 @@ Icon icons[] = {
   // Добавете още иконки тук
 };
 
-const int holdDownLevel = 25;                     // Ниво за задържане яркостта при LightDown(), 0-250
+const int holdDownLevel = 35;                     // Ниво за задържане яркостта при LightDown(), 0-250
 const unsigned long intervalMillisLightDown = 2;  // Интервал за стъпкова промяна на яркостта на екрана, mcs
 const int16_t holdDownTime = 600;                 // Брой стъпки за задържане яркостта на екрана при LightDown().
 

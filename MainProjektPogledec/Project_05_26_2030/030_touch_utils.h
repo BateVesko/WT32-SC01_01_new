@@ -6,9 +6,9 @@
 #include <FT6336U.h>
 #include <TFT_eSPI.h>
 #include <driver/ledc.h>
-#include <variable_set_triangles.h>
-#include "frame_generator.h"
-#include "ColorUtils.h"
+#include <060_variable_set_triangles.h>
+#include "050_frame_generator.h"
+#include "090_ColorUtils.h"
 
 // Дефиниране на пиновете и обектите
 #define ALT_SDA 18

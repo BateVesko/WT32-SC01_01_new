@@ -2,7 +2,6 @@
 #define FRAME_GENERATOR_H
 
 #include <TFT_eSPI.h>
-//#include "fan.h"
 
 extern TFT_eSPI tft;
 extern bool settingMode;

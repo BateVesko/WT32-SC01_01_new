@@ -6,8 +6,8 @@
 #include <FT6336U.h>
 #include <TFT_eSPI.h>
 #include <driver/ledc.h>
-#include <PWM_generator.h>
-#include "touch_utils.h"
+#include <080_PWM_generator.h>
+#include "030_touch_utils.h"
 //#include <button_rect.h>
 
 // Дефиниране на пиновете и обектите
