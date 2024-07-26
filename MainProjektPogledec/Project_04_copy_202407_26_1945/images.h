@@ -3,7 +3,8 @@
 #define IMAGES_H
 
 #include "images/home.h"
-#include "images/redutaSmal04.h"
+#include "images/redutaSmall07.h"
+//#include "images/redutaSmall05.h"
 #include "images/earth.h"
 #include "images/bluecip.h"
 #include "images/dog3.h"
@@ -14,6 +15,7 @@
 #include "images/color_palette80.h"
 #include "images/color_palette100.h"
 #include "images/lamp.h"
+#include "images/glamp.h"
 #include "images/wps.h"
 #include "images/gwps.h"
 //#include "images/fan.h"

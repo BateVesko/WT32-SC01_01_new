@@ -28,66 +28,61 @@ int randomTemperature() {
 // Функция за изобразяване на IP адреса
 void displayIPAddress() {
   //uint16_t colorBackIP = tft.color565(247, 247, 0); // жълт цвят
-  tft.fillRect(80, 0, 320, 24, secondBackgrountColor);
-  tft.fillRoundRect(84, 3, 30, 20, 5, mainBackgrountColor);
-  tft.drawRoundRect(84, 3, 30, 20, 5, mainBorderColor); 
-  tft.fillRoundRect(119, 3, 178, 20, 5, mainBackgrountColor);
-  tft.drawRoundRect(119, 3, 178, 20, 5, mainBorderColor); 
-  tft.drawLine(80, 24, 400, 24, mainBorderColor);
-  tft.setCursor(87, 6);
+  tft.fillRect(80, 0, 320, 25, secondBackgrountColor);
+  tft.fillRoundRect(84, 3, 30, 20, 5, mainBackgrountColor);  // Заоблен правоъгълник за "IP"
+  tft.drawRoundRect(84, 3, 30, 20, 5, mainBorderColor);  // Заоблен контур на правоъгълник за "IP"
+  tft.fillRoundRect(119, 3, 178, 20, 5, mainBackgrountColor);  // Заоблен правоъгълник за IPадреса
+  tft.drawRoundRect(119, 3, 178, 20, 5, mainBorderColor);  // Заоблен контур на правоъгълник за IPадреса
+  visualizeMainLines();  // -> ColorUtils
+  // tft.drawLine(80, 24, 400, 24, mainBorderColor);
+  // tft.drawLine(80, 271, 400, 271, mainBorderColor);
+  tft.setCursor(87, 6);  // Позиционира курсора
   tft.setTextColor(mainBorderColor);
   tft.setTextSize(2);
-  tft.printf("IP %s", WiFi.localIP().toString().c_str());
+  tft.printf("IP %s", WiFi.localIP().toString().c_str());  // Изписва "IP <адреса>"
 }
 
+// Функция за изобразяване на заоблен правоъгълник с температура и знак за градус Целзий
 void dispRoundRect(int pL, int pT, int rW, int rH, int rR, uint16_t rC, uint16_t bC, uint16_t tC, int temp) {
-  tft.fillRoundRect(pL, pT, rW, rH, rR, rC); // Запълнен правоъгълник с радиус на закръгляне 5 пиксела
-  tft.drawRoundRect(pL, pT, rW, rH, rR, bC); // Граница на правоъгълник с радиус на закръгляне 5 пиксела
+  tft.fillRoundRect(pL, pT, rW, rH, rR, rC); // Запълнен правоъгълник с радиус на закръгляне rR пиксела
+  tft.drawRoundRect(pL, pT, rW, rH, rR, bC); // Граница на правоъгълник с радиус на закръгляне rR пиксела
   tft.setCursor(pL+8, pT+5);
   tft.setTextColor(tC);
   tft.setTextSize(2);
   tft.printf("%2d", temp);
   // tft.print((char)247); // Unicode за градуса символ (°)
   // tft.print("C"); // Добавете 'C' за Целзий
-  drawGradusCircle(tft, 2);  // Размерът на шрифта е 8 пиксела по размер на шрифта
+  drawGradusCircle(tft, 2);  // -> ColorUtils.h - Диаметърът на кръгчето за градус е 8*(размер на шрифта-1) пиксела с дебелина (размер на шрифта-1)пиксела
 }
 
-// Функция за изобразяване на информация за паметта и брояча
+// Функция за изобразяване на информация за паметта, брояча и темепературите
 void displayMemoryInfo(int counter) {
-  uint16_t colorBack = tft.color565(0, 247, 247);  // син цят
   uint32_t freeHeap = ESP.getFreeHeap();
-  //freeHeap += 10 * counter * counter;
 
   // Генериране на случайни температури
-  temp1 = randomTemperature();
-  temp2 = randomTemperature();
-  temp3 = randomTemperature();
+  temp1 = randomTemperature();  // -> Abowe
+  temp2 = randomTemperature();  // -> Abowe
+  temp3 = randomTemperature();  // -> Abowe
 
-  // Изобразяване на температурите с заоблено поле
-  uint16_t circleColor = TFT_BLUE;
-  uint16_t borderColor = TFT_RED;
-  uint16_t numberColor = tft.color565(255, 255, 0); // жълт цвят
-
-// Изобразяване на температурите
-  dispRoundRect(100, 95, 60, 25, 5, secondBackgrountColor, mainBorderColor, mainTextColor, temp1);
-  dispRoundRect(336, 65, 60, 25, 5, secondBackgrountColor, mainBorderColor, mainTextColor, temp2);
-  dispRoundRect(324, 193, 60, 25, 5, secondBackgrountColor, mainBorderColor, mainTextColor, temp3);
+  // Изобразяване на температурите
+  dispRoundRect(100, 95, 60, 25, 5, secondBackgrountColor, mainBorderColor, mainTextColor, temp1);  // -> Abowe
+  dispRoundRect(336, 65, 60, 25, 5, secondBackgrountColor, mainBorderColor, mainTextColor, temp2);  // -> Abowe
+  dispRoundRect(324, 193, 60, 25, 5, secondBackgrountColor, mainBorderColor, mainTextColor, temp3);  // -> Abowe
 
   // Визуализация на паметта и брояча най-долу
-  if (!memoryTextDisplayed) {
-    tft.fillRect(80, tft.height() - 24, 320, 27, secondBackgrountColor);
-    tft.drawLine(80, tft.height() - 25, 400, tft.height() - 25, mainBorderColor);
+  if (!memoryTextDisplayed) {  // Визуализира текста към стойностите само в началото. После пропуска за да не трепти екрана
+    tft.fillRect(80, tft.height() - 25, 320, 27, secondBackgrountColor);
     tft.setCursor(82, tft.height() - 19);
     tft.setTextColor(mainTextColor);
     tft.setTextSize(2);
-    //tft.printf("Free heap:%6u Counter:%1d", freeHeap, counter);
     tft.printf("Free heap:%6u Count:%1d", freeHeap, counter);
+    visualizeMainLines();  // -> ColorUtils
     memoryTextDisplayed = true;
     prevFreeHeap = freeHeap;
   } 
   else 
-  {
-    if (freeHeap != prevFreeHeap) {
+  {  // Визуализира само стойностите на променливите
+    if (freeHeap != prevFreeHeap) {  // Визуализира само ако има промяна в стойността
       tft.fillRoundRect(201, tft.height() - 22, 80, 20, 5, mainBackgrountColor);
       tft.drawRoundRect(201, tft.height() - 22, 80, 20, 5, mainBorderColor);
       tft.setCursor(205, tft.height() - 19);
