@@ -3,6 +3,7 @@
 
 #include <WiFi.h>
 #include <WebServer.h>
+//#include "090_ColorUtils.h"
 
 // Глобални променливи за HTTP сървъра
 extern WebServer httpServer;
@@ -31,7 +32,7 @@ void handleRoot() {
   content += "<meta name='viewport' content='width=device-width, initial-scale=1.0'>";
   content += "<title>Select WiFi</title>";
   content += "<style>";
-  content += "h1 { color: yellow; background-color: blue; }";
+  content += "h1 { color: blue; background-color: pink; }";
   content += "</style>";
   content += "</head>";
   content += "<body>";
@@ -86,7 +87,8 @@ void handleConnect() {
 }
 
 void handleWelcome() {
-  String imageUrl = "https://batevesko.github.io/redutaBig04.png?v=" + String(millis());
+  String imageUrl = "https://batevesko.github.io/redutaBig10.png?v=" + String(millis());
+  //String imageUrl = "https://batevesko.github.io/redutaBig04.png?v=" + String(millis());
 
   String content = "<!DOCTYPE html>";
   content += "<html lang='en'>";
@@ -95,16 +97,16 @@ void handleWelcome() {
   content += "<meta name='viewport' content='width=device-width, initial-scale=1.0'>";
   content += "<title>Welcome</title>";
   content += "<style>";
-  content += "body { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 1600px; height: 90vh; margin: auto,auto; border: 2px solid blue; background-color: rgb(250, 250, 0);}";
-  content += ".container { position: relative; width: 100%; max-width: 1000px; height: auto; border: 2px solid red; background-color: rgb(250, 166, 56); }";
+  content += "body { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 1600px; height: 90vh; margin: auto,auto; border: 2px solid blue; background-color: rgb(0, 100, 100);}";
+  content += ".container { position: relative; width: 100%; max-width: 1000px; height: auto; border: 2px solid red; background-color: rgb(0, 200, 200); }";
   content += ".image-container { position: relative; width: 100%; padding-bottom: 67.6%; }"; // Съотношение на иконката
   content += ".fullscreen-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }"; // Ограничете височината на иконката и запазете съотношението
-  content += ".temperature { position: absolute; background: yellow; color: red; border: 2px solid blue; border-radius: 10px; width: 60px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 24px; }";
+  content += ".temperature { position: absolute; background: rgb(173, 216, 230); color: rgb(0, 0, 255); border: 2px solid rgb(0, 0, 255); border-radius: 10px; width: 60px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 24px; }";
   content += "#temp1 { top: 27%; left: 22%; }"; // Относителни позиции спрямо изображението
   content += "#temp2 { top: 13%; left: 79%; }";
   content += "#temp3 { top: 65%; left: 75%; }";
-  content += "h1 { margin-top: 50px; }"; // Отстояние от горния край
-  content += "h2 { margin-bottom: 50px; }"; // Отстояние от долния край
+  content += "h1 { margin-top: 50px; color: white;}"; // Отстояние от горния край
+  content += "h2 { margin-bottom: 50px; color: yellow;}"; // Отстояние от долния край
   content += "</style>";
   content += "</head>";
   content += "<body>";

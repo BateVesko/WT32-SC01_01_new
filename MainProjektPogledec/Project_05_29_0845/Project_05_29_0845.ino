@@ -41,16 +41,16 @@ Icon icons[] = {
   { dust, sizeof(dust), 80, 80, 400, 81 },                         // 5
   { bell, sizeof(bell), 80, 74, 400, 162 },                        // 6
   { lock, sizeof(lock), 80, 78, 400, 237 },                        // 7
-  { redutaSmall07, sizeof(redutaSmall07), 320, 270, 81, 25 },      // 8
+  { redutaSmall101, sizeof(redutaSmall101), 320, 270, 81, 33 },      // 8
   { color_palette80, sizeof(color_palette80), 5, 100, 400, 315 },  // 9
   { color_palette80, sizeof(color_palette80), 5, 100, 0, 315 },    // 10
   { lamp, sizeof(lamp), 80, 72, 0, 243 },                          // 11
   // Добавете още иконки тук
 };
 
-const int holdDownLevel = 35;                     // Ниво за задържане яркостта при LightDown(), 0-250
-const unsigned long intervalMillisLightDown = 2;  // Интервал за стъпкова промяна на яркостта на екрана, mcs
-const int16_t holdDownTime = 600;                 // Брой стъпки за задържане яркостта на екрана при LightDown().
+const int holdDownLevel = 40;                     // Ниво за задържане яркостта при LightDown(), 0-250
+const unsigned long intervalMillisLightDown = 1;  // Интервал за стъпкова промяна на яркостта на екрана, mcs
+const int16_t holdDownTime = 400;                 // Брой стъпки за задържане яркостта на екрана при LightDown().
 
 extern bool backlightOn;
 extern bool isTouched;
@@ -149,7 +149,7 @@ void loop() {
   LightDown();
   if (backlightOn) {
     if (currentTime - lastUpdateTime_Backlight >= backlightTime && !isTouched && !lampIsOn) {
-      pwmLightDown = 250;
+      pwmLightDown = 255;
       holdTime = holdDownTime;
       dimmingLightDown = true;
       backlightOn = false;
@@ -237,11 +237,11 @@ void LightUp() {
       analogWrite(TFT_BL, pwmLightUp);
       Serial.print("PwmLightUp: ");
       Serial.println(pwmLightUp);
-      if (pwmLightUp > 20) {
+      if (pwmLightUp > 30) {
         step = 2;
       }
-      if (pwmLightUp > 50) {
-        step = 3;
+      if (pwmLightUp > 80) {
+        step = 5;
       }
       pwmLightUp += step;
       if (pwmLightUp >= 255) {

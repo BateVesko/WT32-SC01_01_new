@@ -65,7 +65,7 @@ void displayMemoryInfo(int counter) {
   temp3 = randomTemperature();  // -> Abowe
 
   // Изобразяване на температурите
-  dispRoundRect(100, 95, 60, 25, 5, secondBackgrountColor, mainBorderColor, mainTextColor, temp1);  // -> Abowe
+  dispRoundRect(125, 95, 60, 25, 5, secondBackgrountColor, mainBorderColor, mainTextColor, temp1);  // -> Abowe
   dispRoundRect(336, 65, 60, 25, 5, secondBackgrountColor, mainBorderColor, mainTextColor, temp2);  // -> Abowe
   dispRoundRect(324, 193, 60, 25, 5, secondBackgrountColor, mainBorderColor, mainTextColor, temp3);  // -> Abowe
 

@@ -3,7 +3,7 @@
 #define IMAGES_H
 
 #include "images/home.h"
-#include "images/redutaSmall07.h"
+#include "images/redutaSmall101.h"
 //#include "images/redutaSmall05.h"
 #include "images/earth.h"
 #include "images/bluecip.h"
