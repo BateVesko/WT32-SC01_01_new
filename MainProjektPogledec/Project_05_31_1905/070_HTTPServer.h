@@ -21,13 +21,9 @@ void handleConnect();
 void handleWelcome();
 void displayIPAddress();
 
-void setupWiFi() {
-  // const char* predefined_ssid = "A1_6531";
-  // const char* predefined_password = "48575443BD107EA3";
-
+bool setupWiFi() {
   const char* predefined_ssid = "TP-Link_1AEA";
   const char* predefined_password = "83590566";
-
 
   WiFi.begin(predefined_ssid, predefined_password);
   Serial.println("Trying to connect to predefined WiFi...");
@@ -45,23 +41,28 @@ void setupWiFi() {
     Serial.println(predefined_ssid);
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
-    WiFi.softAPdisconnect(true);  // Прекратява AP режима  ********************************************
-    // Продължаване към следващата стъпка
+    WiFi.softAPdisconnect(true);  // Прекратява AP режима
+    return true; // Свързване успешно
   } else {
     Serial.println("");
-    Serial.println("Failed to connect to predefined WiFi. Starting AP mode...");
-    WiFi.softAP("Your_AP_SSID", "Your_AP_Password");
-    IPAddress IP = WiFi.softAPIP();
-    Serial.print("AP IP address: ");
-    Serial.println(IP);
-
-    // Започване на HTTP сървъра
-    httpServer.on("/", handleRoot);
-    httpServer.on("/connect", handleConnect);
-    httpServer.on("/welcome", handleWelcome);
-    httpServer.begin();
-    Serial.println("HTTP server started");
+    Serial.println("Failed to connect to predefined WiFi.");
+    return false; // Свързване неуспешно
   }
+}
+
+void startAPAndHTTPServer() {
+  Serial.println("Starting AP mode...");
+  WiFi.softAP("Your_AP_SSID", "Your_AP_Password");
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP);
+
+  // Започване на HTTP сървъра
+  httpServer.on("/", handleRoot);
+  httpServer.on("/connect", handleConnect);
+  httpServer.on("/welcome", handleWelcome);
+  httpServer.begin();
+  Serial.println("HTTP server started");
 }
 
 void handleRoot() {

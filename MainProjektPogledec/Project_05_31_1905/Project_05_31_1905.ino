@@ -118,7 +118,11 @@ void setup() {
 
   initWiFiAndServer();     //  -> Below
 
-    setupWiFi();  // Добавяне на функция за автоматично свързване към WiFi
+    //setupWiFi();  // Добавяне на функция за автоматично свързване към WiFi
+
+      if (!setupWiFi()) {
+    startAPAndHTTPServer();
+  }
 
   initializePWM(LED_PIN);  // -> PWM_generator
   //initBacklight();  // Инициализация на подсветката
