@@ -21,49 +21,55 @@ void handleConnect();
 void handleWelcome();
 void displayIPAddress();
 
-bool setupWiFi() {
-  const char* predefined_ssid = "TP-Link_1AEA";
-  const char* predefined_password = "83590566";
+// bool setupWiFi() {
+//   const char* predefined_ssid = "TP-Link_1AEA";
+//   const char* predefined_password = "83590566";
 
-  WiFi.begin(predefined_ssid, predefined_password);
-  Serial.println("Trying to connect to predefined WiFi...");
+//   WiFi.begin(predefined_ssid, predefined_password);
+//   Serial.println("Trying to connect to predefined WiFi...");
 
-  int retries = 10;
-  while (WiFi.status() != WL_CONNECTED && retries > 0) {
-    delay(1000);
-    Serial.print(".");
-    retries--;
-  }
+//   int retries = 10;
+//   while (WiFi.status() != WL_CONNECTED && retries > 0) {
+//     delay(1000);
+//     Serial.print(".");
+//     retries--;
+//   }
 
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("");
-    Serial.print("Connected to ");
-    Serial.println(predefined_ssid);
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
-    WiFi.softAPdisconnect(true);  // Прекратява AP режима
-    return true; // Свързване успешно
-  } else {
-    Serial.println("");
-    Serial.println("Failed to connect to predefined WiFi.");
-    return false; // Свързване неуспешно
-  }
-}
+//   if (WiFi.status() == WL_CONNECTED) {
+//     Serial.println("");
+//     Serial.print("Connected to ");
+//     Serial.println(predefined_ssid);
+//     Serial.print("IP address: ");
+//     Serial.println(WiFi.localIP());
+//     WiFi.softAPdisconnect(true);  // Прекратява AP режима
+//     return true; // Свързване успешно
+//   } else {
+//     Serial.println("");
+//     Serial.println("Failed to connect to predefined WiFi.");
+//     return false; // Свързване неуспешно
+//   }
+// }
 
-void startAPAndHTTPServer() {
-  Serial.println("Starting AP mode...");
-  WiFi.softAP("Your_AP_SSID", "Your_AP_Password");
-  IPAddress IP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(IP);
+// void startAPAndHTTPServer() {
+//   Serial.println("Starting AP mode...");
+//   WiFi.softAP("BatevotoVeskovo_ESP32-AP_1", "1234567890");
+//   IPAddress IP = WiFi.softAPIP();
+//   Serial.print("AP IP address: ");
+//   Serial.println(IP);
 
-  // Започване на HTTP сървъра
-  httpServer.on("/", handleRoot);
-  httpServer.on("/connect", handleConnect);
-  httpServer.on("/welcome", handleWelcome);
-  httpServer.begin();
-  Serial.println("HTTP server started");
-}
+//   // Започване на HTTP сървъра
+//   httpServer.on("/", handleRoot);
+//   httpServer.on("/connect", handleConnect);
+//   httpServer.on("/welcome", handleWelcome);
+//   httpServer.begin();
+//   Serial.println("HTTP server started");
+
+//   int n = WiFi.scanNetworks();
+//   ssidList = "";
+//   for (int i = 0; i < n; i++) {
+//     ssidList += "<option value=\"" + WiFi.SSID(i) + "\">" + WiFi.SSID(i) + "</option>";
+//   }
+// }
 
 void handleRoot() {
   if (WiFi.status() == WL_CONNECTED) {

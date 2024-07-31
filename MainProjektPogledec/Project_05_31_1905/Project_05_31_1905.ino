@@ -102,8 +102,9 @@ void LightUp();
 void LightDown();
 
 void setup() {
-  analogWrite(TFT_BL, 0);  // Изключване на подсветката в началото
+  //analogWrite(TFT_BL, 0);  // Изключване на подсветката в началото
   Serial.begin(115200);
+  
   tft.begin();
   tft.setRotation(3);
   tft.fillScreen(TFT_WHITE);  // 0xf7be - онова мръсно бяло
@@ -120,9 +121,9 @@ void setup() {
 
     //setupWiFi();  // Добавяне на функция за автоматично свързване към WiFi
 
-      if (!setupWiFi()) {
-    startAPAndHTTPServer();
-  }
+  // if (!setupWiFi()) {
+  //   startAPAndHTTPServer();
+  // }
 
   initializePWM(LED_PIN);  // -> PWM_generator
   //initBacklight();  // Инициализация на подсветката
@@ -171,7 +172,7 @@ void loop() {
   httpServer.handleClient();
 
   handleTouch();
-  //delay(10);  // малко закъснение за стабилизация. Работи неизвестно как, но ако го няма се появява
+  delay(10);  // малко закъснение за стабилизация. Работи неизвестно как, но ако го няма се появява
 }
 
 void displayIcon(const Icon& icon) {
@@ -204,12 +205,14 @@ void reloadIcon(int numIcon) {  // изобразява отново икона 
   displayIcon(icons[numIcon]);
 }
 
+
+
 void initWiFiAndServer() {
   WiFi.disconnect(true);  // Принудително изключване на автоматичното свързване
 
   // Инициализация на Access Point
   WiFi.mode(WIFI_AP_STA);                                 // Уверете се, че платката е в режим Access Point и станция
-  WiFi.softAP("BatevotoVeskovo_ESP32-AP_1", "123456789");  // Така ще се вижда точката за достъп към платката в режим AP
+  WiFi.softAP("BatevotoVeskovo_ESP32-AP_1", "1234567890");  // Така ще се вижда точката за достъп към платката в режим AP
 
   // Сканиране на наличните WiFi мрежи
   int n = WiFi.scanNetworks();
