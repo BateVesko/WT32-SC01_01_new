@@ -10,3 +10,6 @@
 090.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/MainProjektPogledec/Project_05_31_1905/090_ColorUtils.h
 100.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/MainProjektPogledec/Project_05_31_1905/100_memory_utils.h
 110.https://github.com/BateVesko/WT32-SC01_01_new/blob/main/MainProjektPogledec/Project_05_31_1905/110_images.h
+
+// A1_6531 -> 48575443BD107EA3
+// TP-Link_1AEA -> 83590566

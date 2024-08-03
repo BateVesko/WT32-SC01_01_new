@@ -6,8 +6,9 @@
 #include <FT6336U.h>
 #include <TFT_eSPI.h>
 #include <driver/ledc.h>
-#include <060_variable_set_triangles.h>
+#include "020_display_utils.h"
 #include "050_frame_generator.h"
+#include "060_variable_set_triangles.h"
 #include "090_ColorUtils.h"
 
 // Дефиниране на пиновете и обектите
@@ -87,20 +88,18 @@ void handleTouch() {
         if (wiFiMode) {
           settingMode = !settingMode;
           wiFiMode = !wiFiMode;
-          reloadIcon(8);  // -> .ino
-          reloadIcon(0);  // -> .ino
-          //tft.fillRect(80, 165, 213, 126, mainBackgrountColor);  // Изобразяване на правоъгълник върху бялото поле на чертежа.
+          tft.fillRect(80, 25, 320, 270, mainBackgrountColor);  // зачиства изобразените мрежи
+          reloadIcon(8);  // -> .ino визуализира разпределението
+          reloadIcon(0);  // -> .ino визуализира земята
           displayTextInfo();  // -> display_units
           visualizeMainLines();  // -> ColorUtils
-          // tft.drawLine(80, 0, 80, 320, mainBorderColor);
-          // tft.drawLine(400, 0, 400, 320, mainBorderColor);
         } else {
           settingMode = !settingMode;
           wiFiMode = !wiFiMode;
           buttonFrameGenerator(0, 0, 80, 80, TFT_RED, 4);  // Изобразява червена рамка за "Активно" около earthIcon 
           tft.fillRect(80, 25, 320, 270, mainBackgrountColor);  // зачиства разпределнието
           visualizeMainLines();  // -> ColorUtils
-          // tft.drawLine(80, 0, 80, 320, mainBorderColor);
+          displayNetworks();
         }
         counter = 0;
       } else if (newX > 0 && newX < 80 && newY > 80 && newY < 160 && (settingMode == fanMode)) {
@@ -147,6 +146,7 @@ void handleTouch() {
       lastTouchTime = currentTime;  // Актуализиране на времето на последното докосване
     }
   }
+  return;
 }
 
 

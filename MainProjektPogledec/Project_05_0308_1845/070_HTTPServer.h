@@ -9,6 +9,8 @@ extern WebServer httpServer;
 extern String ssidList;
 extern String ssid;
 extern String password;
+extern String lastKnownSSID;
+extern String lastKnownPassword;
 extern int counter;
 
 // Променливи за температури
@@ -20,6 +22,7 @@ void handleRoot();
 void handleConnect();
 void handleWelcome();
 void displayIPAddress();
+void printNetworkDetails();
 
 // bool setupWiFi() {
 //   const char* predefined_ssid = "TP-Link_1AEA";
@@ -122,6 +125,10 @@ void handleConnect() {
       Serial.print(" with IP address: ");
       Serial.println(WiFi.localIP());
       displayIPAddress();  // -> 020_display_units.h. Показва IP горе на дисплея.
+      lastKnownSSID = ssid;  // **************************
+      lastKnownPassword = password;  // ***********************************
+
+      printNetworkDetails();
 
       // Пренасочване към новата страница
       delay(1000);  // Изчакване за стабилна връзка
@@ -176,6 +183,19 @@ void handleWelcome() {
   content += "</html>";
 
   httpServer.send(200, "text/html", content);
+}
+
+void printNetworkDetails() {
+  Serial.print("Connected to: ");
+  Serial.println(WiFi.SSID());
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+  Serial.print("Subnet Mask: ");
+  Serial.println(WiFi.subnetMask());
+  Serial.print("Gateway IP: ");
+  Serial.println(WiFi.gatewayIP());
+  Serial.print("DNS IP: ");
+  Serial.println(WiFi.dnsIP());
 }
 
 #endif // HTTPSERVER_H

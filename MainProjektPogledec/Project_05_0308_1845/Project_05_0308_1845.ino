@@ -41,7 +41,7 @@ Icon icons[] = {
   { dust, sizeof(dust), 80, 80, 400, 81 },                         // 5
   { bell, sizeof(bell), 80, 74, 400, 162 },                        // 6
   { lock, sizeof(lock), 80, 78, 400, 237 },                        // 7
-  { redutaSmall11, sizeof(redutaSmall11), 320, 238, 80, 41 },    // 8
+  { redutaSmall11, sizeof(redutaSmall11), 320, 238, 80, 41 },      // 8
   { color_palette80, sizeof(color_palette80), 5, 100, 400, 315 },  // 9
   { color_palette80, sizeof(color_palette80), 5, 100, 0, 315 },    // 10
   { lamp, sizeof(lamp), 80, 72, 0, 243 },                          // 11
@@ -49,7 +49,7 @@ Icon icons[] = {
 };
 
 const int holdDownLevel = 40;                     // Ниво за задържане яркостта при LightDown(), 0-250
-const unsigned long intervalMillisLightDown = 1;  // Интервал за стъпкова промяна на яркостта на екрана, mcs
+const unsigned long intervalMillisLightDown = 1;  // Интервал за стъпкова промяна на яркостта на екрана, ms
 const int16_t holdDownTime = 400;                 // Брой стъпки за задържане яркостта на екрана при LightDown().
 
 extern bool backlightOn;
@@ -94,19 +94,30 @@ WebServer httpServer(80);
 
 String ssid = "";
 String password = "";
-String knownNetwork = "TP-Link_1AEA";  // име на "позната" мрежа
 
+//String knownNetwork = "MobiVesko";  // име на "позната" мрежа
+String knownNetwork = "TP-Link_1AEA";      // име на "позната" мрежа
+String baseNetwork = "A1_6531";            // базова мрежа на статичното IP
+String basePassword = "48575443BD107EA3";  // парола за базовата мрежа
+String lastKnownSSID = "";                 // Последната известна мрежа
+String lastKnownPassword = "";             // Паролата за последната известна мрежа
+unsigned long lastCheckTime = 0;
+const unsigned long checkInterval = 30000;  // Проверка на всеки 30 секунди
+bool connectionFails = false;
 
+String networks[20];  // масив за съхранение на имената на мрежите
 
 void LightUp();
 void LightDown();
+void printNetworkDetails();
 
 void setup() {
-  analogWrite(TFT_BL, 0);  // Изключване на подсветката в началото
+  //analogWrite(TFT_BL, 0);  // Изключване на подсветката в началото
   Serial.begin(115200);
+
   tft.begin();
   tft.setRotation(3);
-  tft.fillScreen(TFT_WHITE);  // 0xf7be - онова мръсно бяло
+  tft.fillScreen(TFT_WHITE);                            // 0xf7be - онова мръсно бяло
   tft.fillRect(80, 25, 320, 270, mainBackgrountColor);  // зачиства разпределнието
 
   initIcons();              //  -> Below
@@ -116,9 +127,15 @@ void setup() {
   backlightOn = true;
   isTouched = false;
 
-  initWiFiAndServer();     //  -> Below
+  initWiFiAndServer();  //  -> Below
 
-    setupWiFi();  // Добавяне на функция за автоматично свързване към WiFi
+  printNetworkDetails();  // ->020_display_units Показва всички детайли по връзката с мрежата
+
+  //setupWiFi();  // Добавяне на функция за автоматично свързване към WiFi
+
+  // if (!setupWiFi()) {
+  //   startAPAndHTTPServer();
+  // }
 
   initializePWM(LED_PIN);  // -> PWM_generator
   //initBacklight();  // Инициализация на подсветката
@@ -166,8 +183,17 @@ void loop() {
 
   httpServer.handleClient();
 
+  if (millis() - lastCheckTime >= checkInterval) {
+    checkConnection();
+    lastCheckTime = millis();
+  }
+
+  if (connectionFails) {
+    reconnect();
+  }
+
   handleTouch();
-  //delay(10);  // малко закъснение за стабилизация. Работи неизвестно как, но ако го няма се появява
+  delay(10);  // малко закъснение за стабилизация. Работи неизвестно как, но ако го няма се появява
 }
 
 void displayIcon(const Icon& icon) {
@@ -204,13 +230,25 @@ void initWiFiAndServer() {
   WiFi.disconnect(true);  // Принудително изключване на автоматичното свързване
 
   // Инициализация на Access Point
-  WiFi.mode(WIFI_AP_STA);                                 // Уверете се, че платката е в режим Access Point и станция
-  WiFi.softAP("BatevotoVeskovo_ESP32-AP_1", "123456789");  // Така ще се вижда точката за достъп към платката в режим AP
+  WiFi.mode(WIFI_AP_STA);                                   // Уверете се, че платката е в режим Access Point и станция
+  WiFi.softAP("BatevotoVeskovo_ESP32-AP_1", "1234567890");  // Така ще се вижда точката за достъп към платката в режим AP
 
   // Сканиране на наличните WiFi мрежи
-  int n = WiFi.scanNetworks();
+  delay(1000);                         // Забавяне за стабилизиране на връзката
+  unsigned long startTime = micros();  // Започва засичането на времето
+  int n = WiFi.scanNetworks();         // Сканира за налични мрежи
+  unsigned long endTime = micros();    // Завършва засичането на времето
+  //int n = WiFi.scanNetworks(true, true, 5000); // Сканира за налични мрежи, като използва по-дълъг интервал
+  //delay(1000); // Забавяне за стабилизиране на връзката
+
+  Serial.print("Time taken for WiFi.scanNetworks(): ");
+  Serial.print(endTime - startTime);
+  Serial.println(" microseconds");
+
   for (int i = 0; i < n; ++i) {
-    String currentSSID = WiFi.SSID(i);
+    //String currentSSID = WiFi.SSID(i);
+    networks[i] = WiFi.SSID(i);
+    String currentSSID = networks[i];
 
     // Добавяне на SSID към списъка с налични мрежи
     ssidList += "<option value=\"" + currentSSID + "\"";
@@ -218,6 +256,11 @@ void initWiFiAndServer() {
       ssidList += " selected";  // Маркиране на позната мрежа като избрана
     }
     ssidList += ">" + currentSSID + "</option>";
+
+    // Проверка дали текущата мрежа е базовата мрежа
+    if (currentSSID == baseNetwork) {
+      Serial.println("Found base network: " + baseNetwork);
+    }
   }
 
   // Инициализиране на HTTP сървъра
@@ -239,8 +282,8 @@ void LightUp() {
       previousMillisLightUp = currentMillis;
       uint8_t step = 1;
       analogWrite(TFT_BL, pwmLightUp);
-      Serial.print("PwmLightUp: ");
-      Serial.println(pwmLightUp);
+      //Serial.print("PwmLightUp: ");
+      //Serial.println(pwmLightUp);
       if (pwmLightUp > 30) {
         step = 2;
       }
@@ -263,12 +306,12 @@ void LightDown() {
       previousMillisLightDown = currentMillis;
       uint8_t step = 5;
       analogWrite(TFT_BL, pwmLightDown);
-      Serial.print("PwmLightDown: ");
-      Serial.println(pwmLightDown);
+      //Serial.print("PwmLightDown: ");
+      //Serial.println(pwmLightDown);
       if (pwmLightDown == holdDownLevel) {
         holdTime--;
-        Serial.print("HoldTime: ");
-        Serial.println(holdTime);
+        //Serial.print("HoldTime: ");
+        //Serial.println(holdTime);
         if (holdTime <= 0) {
           pwmLightDown = holdDownLevel - 1;
           return;
@@ -282,11 +325,38 @@ void LightDown() {
       if (pwmLightDown <= 0) {
         analogWrite(TFT_BL, pwmLightDown);
         delay(10);  // Малко закъснение за да се уверим, че командата се изпълнява
-        Serial.print("LastPwmLightDown: ");
-        Serial.println(pwmLightDown);
+        //Serial.print("LastPwmLightDown: ");
+        //Serial.println(pwmLightDown);
         dimmingLightDown = false;
         analogWrite(TFT_BL, 0);
       }
     }
+  }
+}
+
+void checkConnection() {
+  if (WiFi.status() != WL_CONNECTED && lastKnownSSID != "") {
+    Serial.println("Lost connection. Trying to reconnect...");
+    displayIPAddress();
+    connectionFails = true;
+  }
+}
+
+void reconnect() {
+  WiFi.begin(lastKnownSSID.c_str(), lastKnownPassword.c_str());
+
+  unsigned long startAttemptTime = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("Reconnected successfully!");
+    displayIPAddress();  // -> 020_display_units.h. Показва IP горе на дисплея.
+    connectionFails = false;
+  } else {
+    Serial.println("Failed to reconnect. Scanning for networks...");
+    // Implement scanning and connecting to known networks if needed
   }
 }
