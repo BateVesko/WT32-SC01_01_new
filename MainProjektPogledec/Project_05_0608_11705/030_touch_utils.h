@@ -99,8 +99,8 @@ void handleTouch() {
           buttonFrameGenerator(0, 0, 80, 80, TFT_RED, 4);  // Изобразява червена рамка за "Активно" около earthIcon 
           tft.fillRect(80, 25, 320, 270, mainBackgrountColor);  // зачиства разпределнието
           visualizeMainLines();  // -> ColorUtils
-          displayNetworks();
-          displayContReconections();
+          displayNetworks();  // -> 020_display_utils
+          displayContReconections();  // -> 020_display_utils
         }
         counter = 0;
       } else if (newX > 0 && newX < 80 && newY > 80 && newY < 160 && (settingMode == fanMode)) {

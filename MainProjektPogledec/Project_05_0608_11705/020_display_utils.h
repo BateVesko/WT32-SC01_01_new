@@ -9,7 +9,8 @@
 extern TFT_eSPI tft;  // Деклариране на външен обект за дисплея
 extern int myPwm;     // % въздухообмен спрямо обема на помещението за час
 extern String networks[20];
-extern uint16_t countReconections;
+extern uint16_t countReconectionsNoConnect;
+extern uint16_t countReconectionsNoInternet;
 
 // Глобална променлива за предишната стойност на свободната памет
 uint32_t prevFreeHeap = 0;
@@ -42,6 +43,13 @@ void displayIPAddress() {
   tft.setTextColor(mainBorderColor);
   tft.setTextSize(2);
   tft.printf("IP %s", WiFi.localIP().toString().c_str());  // Изписва "IP <адреса>"
+}
+
+void displayNoNet(){
+  tft.setCursor(302, 6);  // Позиционира курсора
+  tft.setTextColor(mainBorderColor);
+  tft.setTextSize(2);
+  tft.printf("No internet");  // Изписва "No internet" след IP адреса
 }
 
 // Функция за изобразяване на заоблен правоъгълник с температура и знак за градус Целзий
@@ -145,8 +153,10 @@ void displayContReconections() {
   uint16_t textColor = TFT_BLUE;               //tft.color565(141, 8, 1);  // #8d0801
   tft.setTextColor(textColor);
   tft.setTextSize(2);
-  tft.setCursor(100, 260);
-  tft.printf("Cont reconections: %d", countReconections);
+  tft.setCursor(90, 235);
+  tft.printf("Reconnections\"No conn.\": %d", countReconectionsNoConnect);
+  tft.setCursor(90, 260);
+  tft.printf("Reconnections\"No net\": %d", countReconectionsNoInternet);
 }
 
 #endif  // DISPLAY_UTILS_H

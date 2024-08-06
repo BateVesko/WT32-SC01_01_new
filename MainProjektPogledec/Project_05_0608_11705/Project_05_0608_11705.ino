@@ -105,7 +105,8 @@ String lastKnownPassword = "";             // Паролата за послед
 unsigned long lastCheckTime = 0;
 const unsigned long checkInterval = 30000;  // Проверка на всеки 30 секунди
 bool connectionFails = false;
-uint16_t countReconections = 0;
+uint16_t countReconectionsNoConnect = 0;
+uint16_t countReconectionsNoInternet = 0;
 
 String networks[20];  // масив за съхранение на имената на мрежите
 
@@ -339,8 +340,8 @@ void LightDown() {
 void checkConnection() {
   if (WiFi.status() != WL_CONNECTED && lastKnownSSID != "") {
     Serial.println("Lost connection. Trying to reconnect...");
-    displayIPAddress();
-    countReconectionsNoC++;
+    displayIPAddress();  // -> 020_display_units.h. Показва IP горе на дисплея.
+    countReconectionsNoConnect++;
     connectionFails = true;
     return;
   }
@@ -355,8 +356,9 @@ void checkConnection() {
       Serial.println("Lost internet connection with GOOGLE. Restarting Wi-Fi...");
       WiFi.disconnect();
       //WiFi.reconnect();
-      displayIPAddress();
-      countReconections++;
+      displayIPAddress();  // -> 020_display_units.h. Показва IP горе на дисплея.
+      displayNoNet();
+      countReconectionsNoInternet++;
       connectionFails = true;
     }
     http.end();
