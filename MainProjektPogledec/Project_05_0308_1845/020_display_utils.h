@@ -9,6 +9,7 @@
 extern TFT_eSPI tft;  // Деклариране на външен обект за дисплея
 extern int myPwm;     // % въздухообмен спрямо обема на помещението за час
 extern String networks[20];
+extern uint16_t countReconections;
 
 // Глобална променлива за предишната стойност на свободната памет
 uint32_t prevFreeHeap = 0;
@@ -130,12 +131,22 @@ void displayNetworks() {
   tft.setTextSize(2);
   int y = 40;  // Начална позиция по y
   for (int i = 0; i < 20 && networks[i] != ""; ++i) {
-    tft.fillRoundRect(90, y - 3, 80 + networks[i].length() * 12, 20, 5, colorBack);  // Запълнен правоъгълник с радиус на закръгляне 10 пиксела
-    tft.drawRoundRect(90, y - 3, 80 + networks[i].length() * 12, 20, 5, borderColor);                          // Граница на правоъгълник с радиус на закръгляне 10 пиксела
-    tft.setCursor(100, y);                                                          // Задава курсора на (20, y)
-    tft.printf("Net%d:%s", i + 1, networks[i].c_str());                             // Принтира името на мрежата
-    y += 25;                                                                        // Преместване на следващия ред надолу
+    tft.fillRoundRect(90, y - 3, 80 + networks[i].length() * 12, 20, 5, colorBack);    // Запълнен правоъгълник с радиус на закръгляне 10 пиксела
+    tft.drawRoundRect(90, y - 3, 80 + networks[i].length() * 12, 20, 5, borderColor);  // Граница на правоъгълник с радиус на закръгляне 10 пиксела
+    tft.setCursor(100, y);                                                             // Задава курсора на (20, y)
+    tft.printf("Net%d:%s", i + 1, networks[i].c_str());                                // Принтира името на мрежата
+    y += 25;                                                                           // Преместване на следващия ред надолу
   }
+}
+
+void displayContReconections() {
+  uint16_t colorBack = secondBackgrountColor;  //tft.color565(0, 240, 240);  //  #f4d58d  ; uint16_t lightBlue = 0x7D7C;
+  uint16_t borderColor = TFT_BLUE;             //tft.color565(141, 8, 1);  // #8d0801
+  uint16_t textColor = TFT_BLUE;               //tft.color565(141, 8, 1);  // #8d0801
+  tft.setTextColor(textColor);
+  tft.setTextSize(2);
+  tft.setCursor(100, 260);
+  tft.printf("Cont reconections: %d", countReconections);
 }
 
 #endif  // DISPLAY_UTILS_H

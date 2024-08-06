@@ -5,6 +5,7 @@
 #include <WebServer.h>
 #include <TFT_eSPI.h>
 #include <PNGdec.h>
+#include <HTTPClient.h>
 #include "110_images.h"
 #include "020_display_utils.h"
 #include "040_rotate_icon.h"
@@ -104,6 +105,7 @@ String lastKnownPassword = "";             // Паролата за послед
 unsigned long lastCheckTime = 0;
 const unsigned long checkInterval = 30000;  // Проверка на всеки 30 секунди
 bool connectionFails = false;
+uint16_t countReconections = 0;
 
 String networks[20];  // масив за съхранение на имената на мрежите
 
@@ -235,15 +237,15 @@ void initWiFiAndServer() {
 
   // Сканиране на наличните WiFi мрежи
   delay(1000);                         // Забавяне за стабилизиране на връзката
-  unsigned long startTime = micros();  // Започва засичането на времето
-  int n = WiFi.scanNetworks();         // Сканира за налични мрежи
-  unsigned long endTime = micros();    // Завършва засичането на времето
+  //unsigned long startTime = millis();  // Започва засичането на времето
+  int n = WiFi.scanNetworks();         // Сканира за налични мрежи48575443BD107EA3
+  //unsigned long endTime = millis();    // Завършва засичането на времето
   //int n = WiFi.scanNetworks(true, true, 5000); // Сканира за налични мрежи, като използва по-дълъг интервал
   //delay(1000); // Забавяне за стабилизиране на връзката
 
-  Serial.print("Time taken for WiFi.scanNetworks(): ");
-  Serial.print(endTime - startTime);
-  Serial.println(" microseconds");
+  //Serial.print("Time taken for WiFi.scanNetworks(): ");
+  //Serial.print(endTime - startTime);
+  //Serial.println(" milliseconds");
 
   for (int i = 0; i < n; ++i) {
     //String currentSSID = WiFi.SSID(i);
@@ -338,8 +340,29 @@ void checkConnection() {
   if (WiFi.status() != WL_CONNECTED && lastKnownSSID != "") {
     Serial.println("Lost connection. Trying to reconnect...");
     displayIPAddress();
+    countReconectionsNoC++;
     connectionFails = true;
+    return;
   }
+
+  //*****************************
+  if (WiFi.status() == WL_CONNECTED && lastKnownSSID != "") {
+    HTTPClient http;
+    http.begin("http://www.google.com");  // Използвайте прост URL за проверка
+    int httpCode = http.GET();
+    if (httpCode <= 0) {
+      // Няма интернет връзка
+      Serial.println("Lost internet connection with GOOGLE. Restarting Wi-Fi...");
+      WiFi.disconnect();
+      //WiFi.reconnect();
+      displayIPAddress();
+      countReconections++;
+      connectionFails = true;
+    }
+    http.end();
+    return;
+  }
+  //*****************************
 }
 
 void reconnect() {

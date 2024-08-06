@@ -100,6 +100,7 @@ void handleTouch() {
           tft.fillRect(80, 25, 320, 270, mainBackgrountColor);  // зачиства разпределнието
           visualizeMainLines();  // -> ColorUtils
           displayNetworks();
+          displayContReconections();
         }
         counter = 0;
       } else if (newX > 0 && newX < 80 && newY > 80 && newY < 160 && (settingMode == fanMode)) {
