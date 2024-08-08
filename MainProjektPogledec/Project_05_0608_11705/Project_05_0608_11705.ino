@@ -2,7 +2,8 @@
 // TP-Link_1AEA -> 83590566
 
 #include <WiFi.h>
-#include <WebServer.h>
+//#include <WebServer.h>
+#include <ESPAsyncWebServer.h>
 #include <TFT_eSPI.h>
 #include <PNGdec.h>
 #include <HTTPClient.h>
@@ -42,7 +43,7 @@ Icon icons[] = {
   { dust, sizeof(dust), 80, 80, 400, 81 },                         // 5
   { bell, sizeof(bell), 80, 74, 400, 162 },                        // 6
   { lock, sizeof(lock), 80, 78, 400, 237 },                        // 7
-  { redutaSmall11, sizeof(redutaSmall11), 320, 238, 80, 41 },      // 8
+  { redutaSmall12, sizeof(redutaSmall12), 320, 238, 80, 41 },      // 8
   { color_palette80, sizeof(color_palette80), 5, 100, 400, 315 },  // 9
   { color_palette80, sizeof(color_palette80), 5, 100, 0, 315 },    // 10
   { lamp, sizeof(lamp), 80, 72, 0, 243 },                          // 11
@@ -88,10 +89,8 @@ int16_t holdTime = holdDownTime;  // Брой цикли на intervalMillisLigh
 int pwmLightDown = 255;
 bool dimmingLightDown = false;
 //***************************
-
-
-String ssidList;
-WebServer httpServer(80);
+//WebServer httpServer(80);
+AsyncWebServer httpServer(80); // Дефиниране на сървъра на порт 80
 
 String ssid = "";
 String password = "";
@@ -105,6 +104,7 @@ String lastKnownPassword = "";             // Паролата за послед
 unsigned long lastCheckTime = 0;
 const unsigned long checkInterval = 30000;  // Проверка на всеки 30 секунди
 bool connectionFails = false;
+String ssidList;
 uint16_t countReconectionsNoConnect = 0;
 uint16_t countReconectionsNoInternet = 0;
 
@@ -184,7 +184,7 @@ void loop() {
     }
   }
 
-  httpServer.handleClient();
+  //httpServer.handleClient();
 
   if (millis() - lastCheckTime >= checkInterval) {
     checkConnection();
@@ -239,7 +239,7 @@ void initWiFiAndServer() {
   // Сканиране на наличните WiFi мрежи
   delay(1000);                         // Забавяне за стабилизиране на връзката
   //unsigned long startTime = millis();  // Започва засичането на времето
-  int n = WiFi.scanNetworks();         // Сканира за налични мрежи48575443BD107EA3
+  int n = WiFi.scanNetworks();         // Сканира за налични мрежи  48575443BD107EA3
   //unsigned long endTime = millis();    // Завършва засичането на времето
   //int n = WiFi.scanNetworks(true, true, 5000); // Сканира за налични мрежи, като използва по-дълъг интервал
   //delay(1000); // Забавяне за стабилизиране на връзката
@@ -267,14 +267,13 @@ void initWiFiAndServer() {
   }
 
   // Инициализиране на HTTP сървъра
-  httpServer.on("/", handleRoot);
+  httpServer.on("/", HTTP_GET, handleRoot);
   httpServer.on("/connect", HTTP_POST, handleConnect);
-  httpServer.on("/welcome", handleWelcome);  // Добавяне на маршрута за /welcome
+  httpServer.on("/welcome", HTTP_GET, handleWelcome);  // Добавяне на маршрута за /welcome
   httpServer.begin();
   Serial.println("HTTP server started");
 
-  // Принтиране на IP адреса на AP
-  Serial.print("AP IP address: ");
+  Serial.print("AP IP address: ");  // Принтиране на IP адреса на AP
   Serial.println(WiFi.softAPIP());
 }
 
@@ -343,6 +342,7 @@ void checkConnection() {
     displayIPAddress();  // -> 020_display_units.h. Показва IP горе на дисплея.
     countReconectionsNoConnect++;
     connectionFails = true;
+    reconnect();  // *******************************
     return;
   }
 

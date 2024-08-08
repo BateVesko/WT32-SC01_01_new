@@ -2,13 +2,16 @@
 #define HTTPSERVER_H
 
 #include <WiFi.h>
-#include <WebServer.h>
+#include <ESPAsyncWebServer.h>
+//#include <WebServer.h>
 
 // Глобални променливи за HTTP сървъра
-extern WebServer httpServer;
+//extern WebServer httpServer;
+extern AsyncWebServer httpServer;
 extern String ssidList;
-extern String ssid;
-extern String password;
+
+//extern String ssid;
+//extern String password;
 extern String lastKnownSSID;
 extern String lastKnownPassword;
 extern int counter;
@@ -18,9 +21,11 @@ extern int temp1;
 extern int temp2;
 extern int temp3;
 
-void handleRoot();
-void handleConnect();
-void handleWelcome();
+//String ssidList;
+
+void handleRoot(AsyncWebServerRequest *request);
+void handleConnect(AsyncWebServerRequest *request);
+void handleWelcome(AsyncWebServerRequest *request);
 void displayIPAddress();
 void printNetworkDetails();
 
@@ -74,10 +79,9 @@ void printNetworkDetails();
 //   }
 // }
 
-void handleRoot() {
+void handleRoot(AsyncWebServerRequest *request) {
   if (WiFi.status() == WL_CONNECTED) {
-    httpServer.sendHeader("Location", "/welcome", true);
-    httpServer.send(302, "text/plain", "");
+    request->redirect("/welcome");
     return;
   }
 
@@ -105,49 +109,109 @@ void handleRoot() {
   content += "</body>";
   content += "</html>";
 
-  httpServer.send(200, "text/html", content);
+  request->send(200, "text/html", content);
 }
 
-void handleConnect() {
-  if (httpServer.hasArg("ssid") && httpServer.hasArg("password")) {
-    ssid = httpServer.arg("ssid");
-    password = httpServer.arg("password");
+void handleConnect(AsyncWebServerRequest *request) {
+  if (request->hasParam("ssid", true) && request->hasParam("password", true)) {
+    String ssid = request->getParam("ssid", true)->value();
+    String password = request->getParam("password", true)->value();
+
+    Serial.println("Attempting to connect to WiFi...");
 
     WiFi.begin(ssid.c_str(), password.c_str());
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(1000);
-      Serial.println("Connecting to WiFi...");
+
+    int connAttempts = 20;
+    while (WiFi.status() != WL_CONNECTED && connAttempts-- > 0) {
+      delay(250);
+      Serial.print(".");
+      // Ресет на watchdog-а
+      vTaskDelay(1);  // yield(); също може да се ползва
     }
 
     if (WiFi.status() == WL_CONNECTED) {
-      Serial.print("Connected to ");
-      Serial.print(ssid);
-      Serial.print(" with IP address: ");
+      Serial.println();
+      Serial.println("Connected!");
+      request->send(200, "text/html", "Connected to " + ssid);
+      Serial.print("IP address: ");
       Serial.println(WiFi.localIP());
-      displayIPAddress();  // -> 020_display_units.h. Показва IP горе на дисплея.
-      lastKnownSSID = ssid;  // **************************
+
+
+      displayIPAddress();            // -> 020_display_units.h. Показва IP горе на дисплея.
+      lastKnownSSID = ssid;          // **************************
       lastKnownPassword = password;  // ***********************************
 
       printNetworkDetails();
 
-      // Пренасочване към новата страница
-      delay(1000);  // Изчакване за стабилна връзка
-      httpServer.sendHeader("Location", "/welcome", true);
-      httpServer.send(302, "text/plain", "");
+      // WiFi.softAPdisconnect(true);
+      // WiFi.mode(WIFI_STA);
 
-      // Изключване на Access Point режима
+      // // Пренасочване към новата страница
+      //delay(1000);  // Изчакване за стабилна връзка
+      request->redirect("/welcome");
+      // httpServer.sendHeader("Location", "/welcome", true);
+      // //httpServer.send(302, "text/plain", "");
+      //request->send(302, "text/plain", "";
+
+      // // Изключване на Access Point режима
       WiFi.softAPdisconnect(true);  // Прекратява AP режима
-      WiFi.mode(WIFI_STA);  // Превключва платката в режим станция само
+      WiFi.mode(WIFI_STA);          // Превключва платката в режим станция само
+
+      Serial.println("Switched to station mode.");
     } else {
-      httpServer.send(400, "text/plain", "Failed to connect to WiFi");
+      Serial.println();
+      Serial.println("Failed to connect.");
+      WiFi.disconnect();
+      WiFi.mode(WIFI_AP_STA);
+      WiFi.softAP("BatevotoVeskovo_ESP32-AP_1", "1234567890");
+      //Serial.println("Failed to connect, returning to AP mode.");
+      request->send(200, "text/html", "Failed to connect to " + ssid + ". Returned to AP mode.");
     }
   } else {
-    httpServer.send(400, "text/plain", "Invalid request");
+    request->send(400, "text/plain", "Invalid request");
   }
 }
 
-void handleWelcome() {
-  String imageUrl = "https://batevesko.github.io/redutaBig11.png?v=" + String(millis());
+// void handleConnect() {
+//   if (httpServer.hasArg("ssid") && httpServer.hasArg("password")) {
+//     ssid = httpServer.arg("ssid");
+//     password = httpServer.arg("password");
+
+//     WiFi.begin(ssid.c_str(), password.c_str());
+//     while (WiFi.status() != WL_CONNECTED) {
+//       delay(1000);
+//       Serial.println("Connecting to WiFi...");
+//     }
+
+//     if (WiFi.status() == WL_CONNECTED) {
+//       Serial.print("Connected to ");
+//       Serial.print(ssid);
+//       Serial.print(" with IP address: ");
+//       Serial.println(WiFi.localIP());
+//       displayIPAddress();  // -> 020_display_units.h. Показва IP горе на дисплея.
+//       lastKnownSSID = ssid;  // **************************
+//       lastKnownPassword = password;  // ***********************************
+
+//       printNetworkDetails();
+
+//       // Пренасочване към новата страница
+//       delay(1000);  // Изчакване за стабилна връзка
+//       httpServer.sendHeader("Location", "/welcome", true);
+//       httpServer.send(302, "text/plain", "");
+
+//       // Изключване на Access Point режима
+//       WiFi.softAPdisconnect(true);  // Прекратява AP режима
+//       WiFi.mode(WIFI_STA);  // Превключва платката в режим станция само
+//     } else {
+//       httpServer.send(400, "text/plain", "Failed to connect to WiFi");
+//     }
+//   } else {
+//     httpServer.send(400, "text/plain", "Invalid request");
+//   }
+// }
+
+void handleWelcome(AsyncWebServerRequest *request) {
+  String imageUrl = "https://batevesko.github.io/redutaBig12.png?v=" + String(millis());
 
   String content = "<!DOCTYPE html>";
   content += "<html lang='en'>";
@@ -158,14 +222,14 @@ void handleWelcome() {
   content += "<style>";
   content += "body { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 1600px; height: 90vh; margin: auto,auto; border: 2px solid blue; background-color: rgb(0, 100, 100);}";
   content += ".container { position: relative; width: 100%; max-width: 1000px; height: auto; border: 2px solid red; background-color: rgb(0, 200, 200); }";
-  content += ".image-container { position: relative; width: 100%; padding-bottom: 67.6%; }"; // Съотношение на иконката
-  content += ".fullscreen-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }"; // Ограничете височината на иконката и запазете съотношението
+  content += ".image-container { position: relative; width: 100%; padding-bottom: 67.6%; }";                              // Съотношение на иконката
+  content += ".fullscreen-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }";  // Ограничете височината на иконката и запазете съотношението
   content += ".temperature { position: absolute; background: rgb(173, 216, 230); color: rgb(0, 0, 255); border: 2px solid rgb(0, 0, 255); border-radius: 10px; width: 60px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 24px; }";
-  content += "#temp1 { top: 23%; left: 20%; }"; // Относителни позиции спрямо изображението
+  content += "#temp1 { top: 23%; left: 20%; }";  // Относителни позиции спрямо изображението
   content += "#temp2 { top: 13%; left: 82%; }";
   content += "#temp3 { top: 59%; left: 80%; }";
-  content += "h1 { margin-top: 50px; color: white;}"; // Отстояние от горния край
-  content += "h2 { margin-bottom: 50px; color: yellow;}"; // Отстояние от долния край
+  content += "h1 { margin-top: 50px; color: white;}";      // Отстояние от горния край
+  content += "h2 { margin-bottom: 50px; color: yellow;}";  // Отстояние от долния край
   content += "</style>";
   content += "</head>";
   content += "<body>";
@@ -182,7 +246,7 @@ void handleWelcome() {
   content += "</body>";
   content += "</html>";
 
-  httpServer.send(200, "text/html", content);
+  request->send(200, "text/html", content);
 }
 
 void printNetworkDetails() {
@@ -198,4 +262,4 @@ void printNetworkDetails() {
   Serial.println(WiFi.dnsIP());
 }
 
-#endif // HTTPSERVER_H
+#endif  // HTTPSERVER_H
